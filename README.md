@@ -195,7 +195,7 @@ Initial Roadmap:
 - [x] Product architecture & tech stack selection — complete
 - [x] Next.js application scaffold & setup — complete
 - [x] GitHub PR Ingestion Service (`@octokit/rest`) — complete
-- [ ] Route/controller code diff parser — pending
+- [x] Deterministic route/controller code diff parser — complete
 - [ ] Gemini drift detection engine — pending
 - [ ] SkillPatch doc generator engine — pending
 - [ ] Review Studio UI — pending
@@ -232,6 +232,13 @@ Initial Roadmap:
   - Normalizes responses into clean internal TypeScript structures (`NormalizedPullRequestData`)
   - Added unit test suite with 100% test coverage using Vitest
   - Does NOT yet perform route parsing, drift detection, or GitHub writes/commits
+- **Deterministic API Change Parser:**
+  - Implemented zero-AI deterministic parser in `src/lib/api-parser/`
+  - Parses Express/Koa/FastAPI routes (`router.get`, `router.post`) and Next.js App Router handlers (`export function GET`)
+  - Extracts HTTP methods, route paths, path parameters (`:id`), query parameters (`req.query`), request body fields (`req.body`), and response status codes (`res.status`)
+  - Identifies change types (`ADDED`, `MODIFIED`, `REMOVED`) from Git patch diffs
+  - Added 12 unit tests verifying deterministic extraction and zero hallucination
+  - Does NOT use Gemini or AI models; pure deterministic code only
 
 *(Future entries will be added as real milestones are completed.)*
 
