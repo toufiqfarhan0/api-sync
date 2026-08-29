@@ -1,23 +1,10 @@
-import { GoogleGenAI } from "@google/genai";
+import { CustomGeminiClient, generateWithGemini } from "../gemini";
 import { buildUserPrompt, DRIFT_ENGINE_SYSTEM_PROMPT } from "./prompt";
 import {
   DriftAnalysisInput,
   DriftAnalysisResult,
   DriftEngineError,
 } from "./types";
-
-export const DEFAULT_GEMINI_MODEL = "gemini-2.0-flash";
-
-export interface CustomGeminiClient {
-  generateContent(args: {
-    model: string;
-    contents: string[];
-    config?: {
-      systemInstruction?: string;
-      responseMimeType?: string;
-    };
-  }): Promise<{ response: { text: string } }>;
-}
 
 export function validateAndParseDriftResult(rawJson: string): DriftAnalysisResult {
   if (!rawJson || !rawJson.trim()) {
@@ -59,7 +46,7 @@ export function validateAndParseDriftResult(rawJson: string): DriftAnalysisResul
 
 export async function analyzeDocDrift(
   input: DriftAnalysisInput,
-  options?: { apiKey?: string; model?: string; clientOverride?: CustomGeminiClient }
+  options?: { apiKey?: string; clientOverride?: CustomGeminiClient }
 ): Promise<DriftAnalysisResult> {
   const { apiChanges, docContexts } = input;
 
@@ -78,7 +65,6 @@ export async function analyzeDocDrift(
     };
   }
 
-  // Handle case where docContexts is empty (e.g. new endpoint with zero existing docs)
   if (!docContexts || docContexts.length === 0) {
     const undocumentedPaths = apiChanges.map((c) => `${c.method} ${c.path}`);
     return {
@@ -95,55 +81,34 @@ export async function analyzeDocDrift(
     };
   }
 
-  const apiKey = options?.apiKey || process.env.GEMINI_API_KEY;
-  const model = options?.model || DEFAULT_GEMINI_MODEL;
-
-  if (!apiKey && !options?.clientOverride) {
-    throw new DriftEngineError(
-      "GEMINI_API_KEY environment variable is missing. Server-side Gemini credential is required.",
-      "MISSING_API_KEY"
-    );
-  }
-
   const userPrompt = buildUserPrompt(apiChanges, docContexts);
 
   try {
-    let responseText = "";
+    const routerResult = await generateWithGemini(userPrompt, {
+      apiKey: options?.apiKey,
+      systemInstruction: DRIFT_ENGINE_SYSTEM_PROMPT,
+      responseMimeType: "application/json",
+      clientOverride: options?.clientOverride,
+    });
 
-    if (options?.clientOverride) {
-      const res = await options.clientOverride.generateContent({
-        model,
-        contents: [userPrompt],
-        config: {
-          systemInstruction: DRIFT_ENGINE_SYSTEM_PROMPT,
-          responseMimeType: "application/json",
-        },
-      });
-      responseText = res.response.text;
-    } else {
-      const ai = new GoogleGenAI({ apiKey });
-      const response = await ai.models.generateContent({
-        model,
-        contents: userPrompt,
-        config: {
-          systemInstruction: DRIFT_ENGINE_SYSTEM_PROMPT,
-          responseMimeType: "application/json",
-        },
-      });
-      responseText = response.text || "";
-    }
-
-    return validateAndParseDriftResult(responseText);
+    const parsedResult = validateAndParseDriftResult(routerResult.responseText);
+    parsedResult.modelMetadata = routerResult.metadata;
+    return parsedResult;
   } catch (err: unknown) {
     if (err instanceof DriftEngineError) throw err;
 
-    const error = err as { message?: string; status?: number };
-    const errMsg = error.message || "Gemini API request failed.";
+    const error = err as { code?: string; message?: string };
+    if (error.code === "MISSING_API_KEY") {
+      throw new DriftEngineError(
+        "GEMINI_API_KEY environment variable is missing. Server-side Gemini credential is required.",
+        "MISSING_API_KEY"
+      );
+    }
 
-    if (errMsg.includes("429") || errMsg.toLowerCase().includes("rate limit")) {
+    if (error.code === "RATE_LIMITED" || (error.message && error.message.includes("429"))) {
       throw new DriftEngineError("Gemini API rate limit exceeded.", "RATE_LIMITED");
     }
 
-    throw new DriftEngineError(`Gemini API call failed: ${errMsg}`, "API_FAILURE");
+    throw new DriftEngineError(`Gemini API call failed: ${error.message || "Unknown error"}`, "API_FAILURE");
   }
 }

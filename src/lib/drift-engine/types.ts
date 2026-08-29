@@ -1,5 +1,6 @@
 import { ApiChange } from "../api-parser/types";
 import { DocumentationContext } from "../doc-collector/types";
+import { GeminiRouterMetadata } from "../gemini/types";
 
 export type DriftStatus = "CONFIRMED_DRIFT" | "NO_DRIFT" | "UNCERTAIN";
 
@@ -21,6 +22,7 @@ export interface DriftAnalysisResult {
   outdatedInformation: string[];
   confidence: "HIGH" | "MEDIUM" | "LOW";
   reasoningEvidence: string[];
+  modelMetadata?: GeminiRouterMetadata;
 }
 
 export class DriftEngineError extends Error {

@@ -91,9 +91,10 @@ Official Competition Rules & Constraints:
 11. [x] GitHub PR Ingestion Service implemented (`src/lib/github/`) with Octokit and 100% unit test coverage.
 12. [x] Deterministic API Change Parser implemented (`src/lib/api-parser/`) with 12 unit tests and 0 AI dependencies.
 13. [x] Documentation Context Collector implemented (`src/lib/doc-collector/`) with 8 unit tests for Markdown section extraction.
-14. [x] Gemini Semantic Drift Engine implemented (`src/lib/drift-engine/`) using `gemini-2.0-flash` with 10 unit tests.
+14. [x] Gemini Semantic Drift Engine implemented (`src/lib/drift-engine/`) using `gemini-3.7-flash` with 10 unit tests.
 15. [x] SkillPatch Documentation Generator Engine implemented (`src/lib/doc-generator/`) consuming `.latentcode/skills/api-documentation/SKILL.md` with 7 unit tests.
-16. [x] Review Studio UI & Analysis Orchestration API implemented (`src/app/page.tsx` & `src/app/api/analyze/route.ts`).
+16. [x] Shared Gemini Model Router & Automatic Fallback Engine implemented (`src/lib/gemini/`) supporting `gemini-3.7-flash` → `gemini-3.6-flash` → `gemini-3.5-flash-lite` fallback sequence.
+17. [x] Review Studio UI & Analysis Orchestration API implemented (`src/app/page.tsx` & `src/app/api/analyze/route.ts`).
 
 ### Pending Milestones
 1. [ ] Implement GitHub sync commit action.
@@ -164,7 +165,8 @@ Official Competition Rules & Constraints:
 ---
 
 ## Current State
-Review Studio UI (`src/app/page.tsx`) and Analysis Orchestration API (`src/app/api/analyze/route.ts`) implemented. Connects PR diff retrieval, route parsing, doc context collection, Gemini drift engine, and SkillPatch doc generator into an interactive side-by-side review interface. Developer approval sets local review state (direct GitHub commit action is pending next milestone). Passes 48 total unit tests via Vitest.
+## Current State
+Shared Gemini Model Router (`src/lib/gemini/`), Review Studio UI (`src/app/page.tsx`), and Analysis Orchestration API (`src/app/api/analyze/route.ts`) implemented. Connects PR diff retrieval, route parsing, doc context collection, Gemini drift engine, and SkillPatch doc generator into an interactive side-by-side review interface with automatic model fallback (`gemini-3.7-flash` → `gemini-3.6-flash` → `gemini-3.5-flash-lite`). Passes 58 total unit tests via Vitest.
 
 ## Next Step
 Implement the GitHub Sync commit handler (`src/app/api/sync/route.ts`) to commit approved documentation updates directly back to the GitHub PR branch.

@@ -207,8 +207,9 @@ Initial Roadmap:
 - [x] GitHub PR Ingestion Service (`@octokit/rest`) — complete
 - [x] Deterministic route/controller code diff parser — complete
 - [x] Documentation Context Collector — complete
-- [x] Gemini semantic drift engine (`gemini-2.0-flash`) — complete
+- [x] Gemini semantic drift engine — complete
 - [x] SkillPatch doc generator engine (`src/lib/doc-generator/`) — complete
+- [x] Gemini Model Router & Fallback Engine (`src/lib/gemini/`) — complete
 - [x] Review Studio UI (`src/app/page.tsx`) — complete
 - [ ] GitHub documentation sync commit handler — pending
 
@@ -253,12 +254,14 @@ Initial Roadmap:
   - Parses Markdown headings (`#`, `##`, `###`) and performs deterministic matching on paths, HTTP methods, and route keywords
   - Reports match confidence (`HIGH`, `MEDIUM`, `LOW`) and match reason (`METHOD_AND_PATH`, `EXACT_PATH`, `HEADING_MATCH`, `ROUTE_KEYWORD`)
   - Added 8 unit tests covering section parsing, exact/partial matching, and unmatched change tracking
-- **Gemini Semantic Drift Engine:**
-  - Added `@google/genai` dependency and implemented runtime server-side drift analyzer in `src/lib/drift-engine/`
-  - Uses `gemini-2.0-flash` with strict zero-hallucination system prompt to compare code changes against collected documentation context
-  - Returns strongly-typed `DriftAnalysisResult` (`CONFIRMED_DRIFT`, `NO_DRIFT`, `UNCERTAIN`) with severity, summary, explanation, missing/outdated info, and evidence
+- **Gemini Semantic Drift Engine & Model Router:**
+  - Added `@google/genai` dependency and centralized model router in `src/lib/gemini/`
+  - Uses automatic fallback model sequence (`gemini-3.7-flash` → `gemini-3.6-flash` → `gemini-3.5-flash-lite`) to handle HTTP 429 rate limits, model-specific 404s, and 5xx errors
+  - Obsolete `gemini-2.0-flash` model configuration fully removed
+  - Returns strongly-typed `DriftAnalysisResult` and `GeminiRouterMetadata` (`modelUsed`, `fallbackUsed`, `attemptedModels`)
+  - Shared by both Gemini drift engine and SkillPatch documentation generator
   - Enforces server-side secret management (`GEMINI_API_KEY` from environment variables)
-  - Added 10 unit tests with mock Gemini clients covering drift detection, JSON validation, and error handling
+  - Added 18 unit tests covering error classification, automatic model fallback, JSON validation, and mock generation
 - **SkillPatch Documentation Generator Engine:**
   - Implemented server-side loader `loadApiDocumentationSkill()` in `src/lib/doc-generator/` to dynamically consume installed `.latentcode/skills/api-documentation/SKILL.md` instructions
   - Integrates Gemini runtime provider to generate structured Markdown documentation updates resolving detected drift
