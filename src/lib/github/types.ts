@@ -57,6 +57,28 @@ export interface NormalizedPullRequestData {
   };
 }
 
+export interface SyncDocumentationInput {
+  owner: string;
+  repo: string;
+  pullNumber: number;
+  filePath: string;
+  content: string;
+  commitMessage?: string;
+  token?: string;
+  expectedSha?: string;
+}
+
+export interface DocumentationSyncResult {
+  success: boolean;
+  repository: string;
+  branch: string;
+  filePath: string;
+  commitSha?: string;
+  commitUrl?: string;
+  status: "SYNCED" | "CONFLICT" | "UNAUTHORIZED" | "NOT_FOUND" | "FAILED";
+  message: string;
+}
+
 export class GitHubServiceError extends Error {
   public readonly statusCode?: number;
   public readonly code: "INVALID_INPUT" | "NOT_FOUND" | "UNAUTHORIZED" | "RATE_LIMITED" | "API_ERROR";

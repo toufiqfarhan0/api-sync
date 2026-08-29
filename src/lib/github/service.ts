@@ -1,10 +1,12 @@
 import { Octokit } from "@octokit/rest";
 import {
+  DocumentationSyncResult,
   FetchPullRequestInput,
   GitHubServiceError,
   NormalizedPullRequestData,
   PRFileChange,
   PRMetadata,
+  SyncDocumentationInput,
 } from "./types";
 
 export function createOctokitClient(token?: string): Octokit {
@@ -148,5 +150,161 @@ export async function fetchPullRequestData(
       "API_ERROR",
       status
     );
+  }
+}
+
+export async function commitDocumentationFile(
+  input: SyncDocumentationInput,
+  customOctokit?: Octokit
+): Promise<DocumentationSyncResult> {
+  const { owner, repo, pullNumber, filePath, content, commitMessage, token, expectedSha } = input;
+
+  if (!owner || !repo || !pullNumber || !filePath || !content) {
+    return {
+      success: false,
+      repository: `${owner}/${repo}`,
+      branch: "unknown",
+      filePath: filePath || "unknown",
+      status: "FAILED",
+      message: "Missing required input parameters for documentation synchronization.",
+    };
+  }
+
+  // Prevent path traversal
+  const normalizedPath = filePath.replace(/^(\.\/|\/)+/, "");
+  if (normalizedPath.includes("..")) {
+    return {
+      success: false,
+      repository: `${owner}/${repo}`,
+      branch: "unknown",
+      filePath: normalizedPath,
+      status: "FAILED",
+      message: "Invalid file path: path traversal is prohibited.",
+    };
+  }
+
+  const client = customOctokit || createOctokitClient(token);
+
+  try {
+    // 1. Fetch PR metadata to identify exact target head branch
+    const prResponse = await client.rest.pulls.get({
+      owner: owner.trim(),
+      repo: repo.trim(),
+      pull_number: pullNumber,
+    });
+
+    const targetBranch = prResponse.data.head.ref;
+    if (!targetBranch) {
+      return {
+        success: false,
+        repository: `${owner}/${repo}`,
+        branch: "unknown",
+        filePath: normalizedPath,
+        status: "FAILED",
+        message: "Could not resolve PR head branch.",
+      };
+    }
+
+    // 2. Fetch current file SHA on target branch if it exists
+    let fileSha: string | undefined;
+    try {
+      const fileRes = await client.rest.repos.getContent({
+        owner: owner.trim(),
+        repo: repo.trim(),
+        path: normalizedPath,
+        ref: targetBranch,
+      });
+
+      if (!Array.isArray(fileRes.data) && "sha" in fileRes.data) {
+        fileSha = fileRes.data.sha;
+      }
+    } catch {
+      // File does not exist yet (will be created)
+    }
+
+    // 3. Concurrency / Stale SHA check
+    if (expectedSha && fileSha && expectedSha !== fileSha) {
+      return {
+        success: false,
+        repository: `${owner}/${repo}`,
+        branch: targetBranch,
+        filePath: normalizedPath,
+        status: "CONFLICT",
+        message: "Documentation file has been modified on GitHub since analysis. Please re-analyze before syncing.",
+      };
+    }
+
+    // 4. Commit updated content directly to PR head branch
+    const base64Content = Buffer.from(content, "utf-8").toString("base64");
+    const defaultMsg = `docs: sync API documentation for PR #${pullNumber} [API-Sync AI]`;
+
+    const commitRes = await client.rest.repos.createOrUpdateFileContents({
+      owner: owner.trim(),
+      repo: repo.trim(),
+      path: normalizedPath,
+      message: commitMessage || defaultMsg,
+      content: base64Content,
+      sha: fileSha,
+      branch: targetBranch,
+    });
+
+    const commitSha = commitRes.data.commit.sha;
+    const commitUrl = commitRes.data.commit.html_url;
+
+    return {
+      success: true,
+      repository: `${owner}/${repo}`,
+      branch: targetBranch,
+      filePath: normalizedPath,
+      commitSha,
+      commitUrl,
+      status: "SYNCED",
+      message: `Successfully synchronized documentation to branch '${targetBranch}'.`,
+    };
+  } catch (error: unknown) {
+    const errObj = (error || {}) as { status?: number; statusCode?: number; message?: string };
+    const status = errObj.status || errObj.statusCode;
+
+    if (status === 409) {
+      return {
+        success: false,
+        repository: `${owner}/${repo}`,
+        branch: "unknown",
+        filePath: normalizedPath,
+        status: "CONFLICT",
+        message: "GitHub conflict: file SHA mismatch or concurrent modification detected.",
+      };
+    }
+
+    if (status === 401 || status === 403) {
+      return {
+        success: false,
+        repository: `${owner}/${repo}`,
+        branch: "unknown",
+        filePath: normalizedPath,
+        status: "UNAUTHORIZED",
+        message: "Unauthorized to write to GitHub repository. Check GITHUB_TOKEN write permissions.",
+      };
+    }
+
+    if (status === 404) {
+      return {
+        success: false,
+        repository: `${owner}/${repo}`,
+        branch: "unknown",
+        filePath: normalizedPath,
+        status: "NOT_FOUND",
+        message: `Repository ${owner}/${repo} or PR #${pullNumber} not found on GitHub.`,
+      };
+    }
+
+    return {
+      success: false,
+      repository: `${owner}/${repo}`,
+      branch: "unknown",
+      filePath: normalizedPath,
+      status: "FAILED",
+      message: errObj.message || "Failed to commit documentation update to GitHub.",
+    };
   }
 }

@@ -211,7 +211,7 @@ Initial Roadmap:
 - [x] SkillPatch doc generator engine (`src/lib/doc-generator/`) — complete
 - [x] Gemini Model Router & Fallback Engine (`src/lib/gemini/`) — complete
 - [x] Review Studio UI (`src/app/page.tsx`) — complete
-- [ ] GitHub documentation sync commit handler — pending
+- [x] GitHub documentation sync commit handler (`src/app/api/sync/route.ts`) — complete
 
 *(Note: This is an initial roadmap and will be adapted as real development progresses.)*
 
@@ -271,8 +271,13 @@ Initial Roadmap:
   - Implemented full-stack Review Studio UI (`src/app/page.tsx`) and analysis API route (`src/app/api/analyze/route.ts`)
   - Orchestrates GitHub PR ingestion, deterministic code parsing, context collection, Gemini drift detection, and SkillPatch generation
   - Renders PR metadata summary, detected API changes, drift status & explanation, and side-by-side documentation comparison
-  - Provides `Approve Documentation Update` and `Reject` developer review controls (approval sets local state for sync; direct GitHub commit step is pending next milestone)
+  - Provides `Approve & Sync to GitHub` and `Reject` developer review controls
   - Added unit test suite for input URL parsing and route helpers
+- **GitHub Documentation Sync Service:**
+  - Implemented `commitDocumentationFile` in `src/lib/github/` and server-side endpoint `POST /api/sync` (`src/app/api/sync/route.ts`)
+  - Commits approved documentation updates directly to the target PR's HEAD branch on explicit developer approval
+  - Enforces path-traversal security checks, HEAD branch resolution, and SHA/concurrency conflict detection
+  - Added unit test suite (`src/lib/github/__tests__/sync.test.ts`) covering branch protection, SHA conflict mapping, 401/403 errors, and path validation
 
 *(Future entries will be added as real milestones are completed.)*
 

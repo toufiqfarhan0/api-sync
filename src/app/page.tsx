@@ -42,12 +42,14 @@ interface AnalysisResponse {
   success: boolean;
   error?: string;
   prMetadata?: {
-    title: string;
+    owner: string;
+    repo: string;
     number: number;
+    title: string;
     htmlUrl: string;
     author: { login: string };
-    head: { ref: string };
-    base: { ref: string };
+    head: { ref: string; sha: string };
+    base: { ref: string; sha: string };
   };
   summary?: { additions: number; deletions: number; changedFilesCount: number };
   apiChanges?: ApiChangeItem[];
@@ -56,13 +58,26 @@ interface AnalysisResponse {
   generationResult?: GenerationData | null;
 }
 
+interface SyncResponse {
+  success: boolean;
+  repository: string;
+  branch: string;
+  filePath: string;
+  commitSha?: string;
+  commitUrl?: string;
+  status: "SYNCED" | "CONFLICT" | "UNAUTHORIZED" | "NOT_FOUND" | "FAILED";
+  message: string;
+}
+
 export default function ReviewStudioPage() {
   const [repoInput, setRepoInput] = useState("");
   const [pullNumberInput, setPullNumberInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<AnalysisResponse | null>(null);
   const [reviewState, setReviewState] = useState<"IDLE" | "APPROVED" | "REJECTED">("IDLE");
+  const [syncResult, setSyncResult] = useState<SyncResponse | null>(null);
 
   const handleAnalyze = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,6 +90,7 @@ export default function ReviewStudioPage() {
     setError(null);
     setData(null);
     setReviewState("IDLE");
+    setSyncResult(null);
 
     try {
       const res = await fetch("/api/analyze", {
@@ -97,6 +113,50 @@ export default function ReviewStudioPage() {
       setError(errorObj.message || "An unexpected error occurred during analysis.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSyncToGitHub = async () => {
+    if (!data || !data.prMetadata || !data.generationResult) return;
+
+    setSyncing(true);
+    setError(null);
+
+    // Derive owner and repo safely
+    const inputParts = repoInput.replace(/https?:\/\/github\.com\//i, "").split("/");
+    const owner = data.prMetadata.owner || inputParts[0];
+    const repo = data.prMetadata.repo || inputParts[1];
+
+    try {
+      const res = await fetch("/api/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          owner,
+          repo,
+          pullNumber: data.prMetadata.number,
+          filePath: data.generationResult.targetFile,
+          content: data.generationResult.generatedContent,
+        }),
+      });
+
+      const json: SyncResponse = await res.json();
+      setSyncResult(json);
+
+      if (json.success) {
+        setReviewState("APPROVED");
+      } else {
+        if (json.status === "CONFLICT") {
+          setError("Documentation file has been modified on GitHub. Please re-analyze before syncing.");
+        } else {
+          setError(json.message || "Failed to synchronize documentation to GitHub.");
+        }
+      }
+    } catch (err: unknown) {
+      const errorObj = err as { message?: string };
+      setError(errorObj.message || "An unexpected error occurred during GitHub sync.");
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -160,7 +220,7 @@ export default function ReviewStudioPage() {
             <div className="md:col-span-2 flex items-end">
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || syncing}
                 className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white font-medium py-2.5 px-4 rounded-lg transition text-sm flex items-center justify-center space-x-2 shadow-lg shadow-indigo-600/20"
               >
                 {loading ? (
@@ -329,13 +389,34 @@ export default function ReviewStudioPage() {
                   </div>
                 </div>
 
-                {/* Review Action Controls */}
-                <div className="mt-8 pt-6 border-t border-slate-800 flex items-center justify-between">
+                {/* Review & Sync Action Controls */}
+                <div className="mt-8 pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="text-xs text-slate-400">
-                    {reviewState === "APPROVED" && (
-                      <span className="text-emerald-400 font-semibold flex items-center space-x-1">
-                        <span>✓ Proposal Approved for Synchronization.</span>
-                        <span className="text-slate-500">(GitHub sync step pending in next milestone).</span>
+                    {syncResult?.status === "SYNCED" && (
+                      <div className="text-emerald-400 font-semibold space-y-1">
+                        <div>✓ Successfully synchronized to branch <span className="font-mono">{syncResult.branch}</span>!</div>
+                        {syncResult.commitSha && (
+                          <div className="text-xs text-slate-400 font-mono">
+                            Commit:{" "}
+                            {syncResult.commitUrl ? (
+                              <a
+                                href={syncResult.commitUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="underline text-indigo-400 hover:text-indigo-300"
+                              >
+                                {syncResult.commitSha.substring(0, 7)}
+                              </a>
+                            ) : (
+                              syncResult.commitSha.substring(0, 7)
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    {syncResult?.status === "CONFLICT" && (
+                      <span className="text-amber-400 font-semibold">
+                        ⚠️ Documentation changed on GitHub. Please re-analyze before syncing.
                       </span>
                     )}
                     {reviewState === "REJECTED" && (
@@ -343,25 +424,34 @@ export default function ReviewStudioPage() {
                         ✕ Proposal Rejected by Developer.
                       </span>
                     )}
-                    {reviewState === "IDLE" && (
-                      <span>Inspect proposal and choose an action above.</span>
+                    {reviewState === "IDLE" && !syncResult && (
+                      <span>Inspect proposal and approve when ready to commit to GitHub PR branch.</span>
                     )}
                   </div>
 
                   <div className="flex items-center space-x-3">
                     <button
                       onClick={() => setReviewState("REJECTED")}
-                      disabled={reviewState === "REJECTED"}
+                      disabled={syncing || reviewState === "REJECTED"}
                       className="px-4 py-2 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
                     >
                       Reject
                     </button>
                     <button
-                      onClick={() => setReviewState("APPROVED")}
-                      disabled={reviewState === "APPROVED"}
-                      className="px-5 py-2 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition shadow-lg shadow-emerald-600/20"
+                      onClick={handleSyncToGitHub}
+                      disabled={syncing || syncResult?.status === "SYNCED"}
+                      className="px-5 py-2 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 text-white transition flex items-center space-x-2 shadow-lg shadow-emerald-600/20"
                     >
-                      Approve Documentation Update
+                      {syncing ? (
+                        <>
+                          <span className="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full" />
+                          <span>Syncing to GitHub...</span>
+                        </>
+                      ) : syncResult?.status === "SYNCED" ? (
+                        <span>Synced to GitHub ✓</span>
+                      ) : (
+                        <span>Approve & Sync to GitHub</span>
+                      )}
                     </button>
                   </div>
                 </div>
