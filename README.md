@@ -40,6 +40,46 @@ The intended end-to-end product workflow consists of five conceptual stages:
 
 *(Note: The above stages reflect the intended conceptual workflow. None of these automated stages are implemented yet.)*
 
+## Product Architecture & Workflow
+
+API-Sync AI uses a hybrid deterministic and AI-powered architecture designed for safety, accuracy, and developer trust.
+
+### Approved End-to-End Workflow
+
+1. **Input & Extraction:** Developer inputs a GitHub repository and Pull Request URL (or number).
+2. **Diff Retrieval:** API-Sync fetches the PR's changed files and diff via the GitHub REST API (Octokit).
+3. **Route & Code Parsing:** Deterministic logic filters modified route/controller files (e.g. Express, FastAPI, NestJS) and extracts endpoint changes.
+4. **Documentation Location:** Deterministic logic locates corresponding documentation files in the repo (`README.md`, `docs/*.md`).
+5. **Semantic Drift Detection (Gemini):** Gemini analyzes the code diff against existing documentation snippets to determine whether documentation drift exists and explains the inconsistency.
+6. **Structured Doc Generation (SkillPatch):** The installed `api-documentation` SkillPatch skill formats and generates precise, standardized Markdown documentation updates from the extracted API changes.
+7. **Interactive Review Studio:** The proposed documentation update and drift explanation are rendered side-by-side for developer inspection.
+8. **Explicit Human Approval & Sync:** Upon explicit developer approval, API-Sync commits the updated documentation directly to the relevant GitHub PR branch.
+
+### Core Component Responsibilities
+
+- **Frontend (Review Studio):** Provides PR/repository input, displays drift analysis state, renders side-by-side documentation diffs, and captures explicit developer approval.
+- **GitHub Service (Octokit):** Fetches PR metadata, diffs, and repository files; commits approved documentation updates.
+- **Change Analysis:** Deterministically parses diffs, identifies API-related source files, and extracts parameters and handlers.
+- **Gemini Engine:** Performs semantic drift detection, identifies behavioral mismatches between code and docs, and explains why documentation is stale.
+- **SkillPatch `api-documentation`:** Owns structured documentation update drafting and formatting rules (Markdown API tables, response types, example request snippets).
+- **Review Layer:** Enforces explicit human-in-the-loop validation before any repository changes are pushed.
+
+### MVP Technology Stack
+
+- **Framework:** Next.js (TypeScript)
+- **Styling:** Tailwind CSS
+- **GitHub SDK:** `@octokit/rest`
+- **Runtime AI Provider:** Gemini (using `GEMINI_API_KEY` from environment variables)
+- **Documentation Generator:** Installed SkillPatch `api-documentation` skill (`.latentcode/skills/api-documentation`)
+
+### Architecture Boundaries (Explicitly Out of Scope)
+
+To ensure a reliable, high-impact MVP within the BuildSprint, the following are explicitly out of scope:
+- Vector databases and complex RAG infrastructure
+- Webhook servers and background worker queues
+- Complex multi-tenant OAuth organization management
+- Automatic background auto-committing without human approval
+
 ---
 
 ## What Exists Today
@@ -62,6 +102,7 @@ The application itself has not yet been implemented.
 - **LatentCode:** connected/active
 - **SkillPatch:** connected and verified
 - **SkillPatch project-level installation:** complete (`api-documentation` installed at `.latentcode/skills/api-documentation`)
+- **Product Architecture & Tech Stack:** complete (Next.js, Octokit, Gemini, SkillPatch)
 - **Application implementation:** not started
 
 ---
@@ -151,7 +192,7 @@ Initial Roadmap:
 - [x] Initial repository setup — complete
 - [x] SkillPatch selection (`api-documentation`) — complete
 - [x] SkillPatch installation (`.latentcode/skills/api-documentation`) — complete
-- [ ] Product architecture — pending
+- [x] Product architecture & tech stack selection — complete
 - [ ] Core implementation — pending
 - [ ] GitHub integration — pending
 - [ ] Documentation synchronization workflow — pending
@@ -174,6 +215,9 @@ Initial Roadmap:
   - Evaluated and selected `api-documentation` SkillPatch skill
   - Installed `api-documentation` into `.latentcode/skills/api-documentation`
   - Verified installation and skill loading in LatentCode
+- **Product Architecture & Tech Stack:**
+  - Finalized MVP architecture: Next.js + Octokit + Gemini + SkillPatch
+  - Defined end-to-end PR-driven workflow and side-by-side Review Studio
   - Application code implementation not started yet
 
 *(Future entries will be added as real milestones are completed.)*
@@ -210,3 +254,5 @@ This README is a living source of project context. When implementation, architec
 ## Current Build Principle
 
 "Build the smallest real, useful version first; verify it; then expand."
+
+"API-Sync AI uses deterministic code and GitHub processing for reliable change extraction, Gemini for semantic reasoning, and SkillPatch for structured documentation generation, with explicit human approval before synchronization."

@@ -85,27 +85,75 @@ Official Competition Rules & Constraints:
 5. [x] `api-documentation` evaluated and selected as recommended SkillPatch skill.
 6. [x] Living README.md and context.md created.
 7. [x] `api-documentation` SkillPatch skill installed at `.latentcode/skills/api-documentation`.
+8. [x] Product architecture finalized (PR-driven workflow, Review Studio, Gemini drift engine, SkillPatch doc generator).
+9. [x] Technology stack selected (Next.js, TypeScript, Tailwind CSS, Octokit, Gemini SDK, SkillPatch).
 
 ### Pending Milestones
-1. [ ] Finalize product architecture.
-2. [ ] Decide technology stack based on architecture.
-3. [ ] Implement core API-Sync workflow.
-4. [ ] Integrate Gemini as runtime AI provider.
-5. [ ] Implement documentation synchronization logic.
-6. [ ] Implement developer review/sync experience.
-7. [ ] Integrate GitHub interactions (as defined by final architecture).
+1. [ ] Implement core API-Sync workflow & Next.js project initialization.
+2. [ ] Implement GitHub service (Octokit PR diff retrieval & file fetching).
+3. [ ] Implement deterministic route change parser.
+4. [ ] Integrate Gemini runtime provider for semantic drift detection.
+5. [ ] Integrate SkillPatch `api-documentation` prompt engine for doc generation.
+6. [ ] Implement interactive Review Studio UI with side-by-side diffs.
+7. [ ] Implement GitHub sync commit action.
 8. [ ] End-to-end testing and validation.
 9. [ ] Demo video & Build in Public preparation.
 10. [ ] Final submission preparation (transcripts, Drive folder, submission form).
 
 ---
 
-## 5. Teammate Collaboration & Principles
+## 5. Approved Product Architecture & Technical Decisions
+
+### Approved MVP Workflow
+1. **Developer Input:** User provides GitHub repository (`owner/repo`) and Pull Request number.
+2. **GitHub Diff Retrieval:** Backend uses Octokit (`@octokit/rest`) to fetch PR metadata, changed files, and code diffs.
+3. **Route & Code Parsing:** Deterministic logic identifies API route/controller changes and extracts route paths, parameters, and status codes.
+4. **Documentation Location:** Deterministic logic locates matching repository documentation files (`README.md`, `docs/*.md`).
+5. **Semantic Drift Detection (Gemini):** Gemini receives code diffs + existing documentation snippets, evaluates whether documentation drift exists, and provides a clear explanation.
+6. **Structured Doc Generation (SkillPatch):** The installed `api-documentation` skill formats updated API documentation snippets (Markdown tables, response models, `curl` examples).
+7. **Side-by-Side Review Studio:** Next.js UI presents detected changes, drift explanations, and side-by-side old vs proposed doc diffs.
+8. **Explicit Human Sync:** Developer reviews the proposal and explicitly clicks "Sync Documentation", triggering an Octokit commit back to the PR branch.
+
+### Component Responsibilities
+- **Frontend (Next.js + Tailwind):** PR input, progress state, diff viewer, explicit approval trigger.
+- **GitHub Service (Octokit):** Fetch PR files, read repo docs, push doc update commits.
+- **Change Analysis Engine:** Deterministic diff parser and route/controller extractor.
+- **Gemini Runtime Provider:** Semantic drift analysis and explanation.
+- **SkillPatch `api-documentation`:** Standardized Markdown/OpenAPI documentation generation.
+- **Review Layer:** Human-in-the-loop review and approval before writing to GitHub.
+
+### Approved Technology Stack
+- **Framework:** Next.js (TypeScript)
+- **Styling:** Tailwind CSS
+- **GitHub SDK:** `@octokit/rest`
+- **AI Provider:** Gemini (`GEMINI_API_KEY` in environment variables)
+- **Documentation Engine:** SkillPatch `api-documentation` skill (`.latentcode/skills/api-documentation`)
+
+### Architectural Boundaries
+- No vector databases or RAG infrastructure.
+- No background queue/worker architecture.
+- No webhook servers or public tunnel dependencies.
+- No complex multi-tenant OAuth setups.
+- No auto-committing without human approval.
+
+### Implementation Order
+1. Next.js application scaffold & setup.
+2. Octokit GitHub service (PR diff fetch & file write).
+3. Deterministic code diff parser module.
+4. Gemini drift detection engine.
+5. SkillPatch `api-documentation` prompt executor.
+6. Side-by-Side Review Studio UI.
+7. GitHub Sync action button & commit handler.
+8. Verification & Demo recording.
+
+---
+
+## 6. Teammate Collaboration & Principles
 
 - **Shared Context:** Both teammates maintain alignment via `context.md` (internal/technical context) and `README.md` (public project context).
 - **Core Product Principle:** *"Keep API documentation synchronized with the code that defines the API."*
 - **Build Principle:** *"Build the smallest real, useful version first; verify it; then expand."*
-- **No Premature Architecture:** Frameworks, databases, webhooks, deployment targets, and UI components are intentionally left unselected until decided explicitly in upcoming architecture steps.
+- **Finalized Architecture:** Architecture and technology stack decisions are explicitly finalized in Section 5. Avoid adding unvetted frameworks, databases, or infrastructure outside these boundaries.
 - **Git & Safety Hygiene:**
   - Work in small, verifiable increments.
   - Coordinate before editing files currently being worked on by the teammate.
@@ -118,4 +166,4 @@ Official Competition Rules & Constraints:
 Repository setup is complete. SkillPatch connectivity is verified. The `api-documentation` skill has been evaluated and installed at `.latentcode/skills/api-documentation`. Product implementation has not yet started.
 
 ## Next Step
-Finalize product architecture and technology stack, then proceed with core API-Sync implementation using the installed `api-documentation` skill for update generation.
+Proceed with Next.js project initialization and core API-Sync implementation using Octokit, Gemini, and the installed `api-documentation` SkillPatch skill.
