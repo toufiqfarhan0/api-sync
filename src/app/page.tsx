@@ -16,6 +16,12 @@ interface DocContextItem {
   matchedSections: { headingTitle?: string; contentSnippet: string }[];
 }
 
+interface ModelMetadata {
+  modelUsed: string;
+  fallbackUsed: boolean;
+  attemptedModels: string[];
+}
+
 interface DriftAnalysisData {
   status: "CONFIRMED_DRIFT" | "NO_DRIFT" | "UNCERTAIN";
   severity: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" | "NONE";
@@ -27,6 +33,7 @@ interface DriftAnalysisData {
   outdatedInformation: string[];
   confidence: string;
   reasoningEvidence: string[];
+  modelMetadata?: ModelMetadata;
 }
 
 interface GenerationData {
@@ -36,6 +43,7 @@ interface GenerationData {
   summary: string;
   warnings: string[];
   confidence: string;
+  modelMetadata?: ModelMetadata;
 }
 
 interface AnalysisResponse {
@@ -55,7 +63,6 @@ interface AnalysisResponse {
   apiChanges?: ApiChangeItem[];
   docContexts?: DocContextItem[];
   driftAnalysis?: DriftAnalysisData;
-  generationResult?: GenerationData | null;
 }
 
 interface SyncResponse {
@@ -72,13 +79,19 @@ interface SyncResponse {
 export default function ReviewStudioPage() {
   const [repoInput, setRepoInput] = useState("");
   const [pullNumberInput, setPullNumberInput] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loadingAnalysis, setLoadingAnalysis] = useState(false);
+  const [loadingGeneration, setLoadingGeneration] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  
   const [error, setError] = useState<string | null>(null);
+  const [generationError, setGenerationError] = useState<string | null>(null);
+  
   const [data, setData] = useState<AnalysisResponse | null>(null);
+  const [generationData, setGenerationData] = useState<GenerationData | null>(null);
   const [reviewState, setReviewState] = useState<"IDLE" | "APPROVED" | "REJECTED">("IDLE");
   const [syncResult, setSyncResult] = useState<SyncResponse | null>(null);
 
+  // Stage 1: Analyze PR & Detect Drift
   const handleAnalyze = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!repoInput.trim()) {
@@ -86,9 +99,11 @@ export default function ReviewStudioPage() {
       return;
     }
 
-    setLoading(true);
+    setLoadingAnalysis(true);
     setError(null);
+    setGenerationError(null);
     setData(null);
+    setGenerationData(null);
     setReviewState("IDLE");
     setSyncResult(null);
 
@@ -112,17 +127,49 @@ export default function ReviewStudioPage() {
       const errorObj = err as { message?: string };
       setError(errorObj.message || "An unexpected error occurred during analysis.");
     } finally {
-      setLoading(false);
+      setLoadingAnalysis(false);
     }
   };
 
+  // Stage 2: Explicitly Generate Documentation Update
+  const handleGenerate = async () => {
+    if (!data || !data.apiChanges || !data.driftAnalysis) return;
+
+    setLoadingGeneration(true);
+    setGenerationError(null);
+
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          apiChanges: data.apiChanges,
+          docContexts: data.docContexts || [],
+          driftAnalysis: data.driftAnalysis,
+        }),
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Failed to generate documentation update.");
+      }
+
+      setGenerationData(json.generationResult);
+    } catch (err: unknown) {
+      const errorObj = err as { message?: string };
+      setGenerationError(errorObj.message || "An unexpected error occurred during documentation generation.");
+    } finally {
+      setLoadingGeneration(false);
+    }
+  };
+
+  // Stage 3: Approve & Sync to GitHub
   const handleSyncToGitHub = async () => {
-    if (!data || !data.prMetadata || !data.generationResult) return;
+    if (!data || !data.prMetadata || !generationData) return;
 
     setSyncing(true);
     setError(null);
 
-    // Derive owner and repo safely
     const inputParts = repoInput.replace(/https?:\/\/github\.com\//i, "").split("/");
     const owner = data.prMetadata.owner || inputParts[0];
     const repo = data.prMetadata.repo || inputParts[1];
@@ -135,8 +182,8 @@ export default function ReviewStudioPage() {
           owner,
           repo,
           pullNumber: data.prMetadata.number,
-          filePath: data.generationResult.targetFile,
-          content: data.generationResult.generatedContent,
+          filePath: generationData.targetFile,
+          content: generationData.generatedContent,
         }),
       });
 
@@ -175,7 +222,7 @@ export default function ReviewStudioPage() {
             </span>
           </div>
           <div className="text-sm text-slate-400">
-            Automated API Documentation Drift & Review Studio
+            Progressive Two-Stage Documentation Review Studio
           </div>
         </div>
       </header>
@@ -185,7 +232,7 @@ export default function ReviewStudioPage() {
         <section className="bg-slate-900/40 border border-slate-800 rounded-xl p-6 shadow-xl">
           <h2 className="text-lg font-semibold text-white mb-2">Analyze Pull Request</h2>
           <p className="text-sm text-slate-400 mb-6">
-            Enter a GitHub Pull Request URL or repository name to detect API documentation drift and preview synchronized updates.
+            Enter a GitHub Pull Request URL to detect API documentation drift instantly.
           </p>
 
           <form onSubmit={handleAnalyze} className="grid grid-cols-1 md:grid-cols-12 gap-4">
@@ -220,10 +267,10 @@ export default function ReviewStudioPage() {
             <div className="md:col-span-2 flex items-end">
               <button
                 type="submit"
-                disabled={loading || syncing}
+                disabled={loadingAnalysis || loadingGeneration || syncing}
                 className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white font-medium py-2.5 px-4 rounded-lg transition text-sm flex items-center justify-center space-x-2 shadow-lg shadow-indigo-600/20"
               >
-                {loading ? (
+                {loadingAnalysis ? (
                   <>
                     <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
                     <span>Analyzing...</span>
@@ -242,7 +289,7 @@ export default function ReviewStudioPage() {
           )}
         </section>
 
-        {/* Results Area */}
+        {/* Stage 1 Results Area */}
         {data && (
           <div className="space-y-8 animate-fadeIn">
             {/* PR Summary Bar */}
@@ -304,7 +351,7 @@ export default function ReviewStudioPage() {
                 data.driftAnalysis.status === "NO_DRIFT" ? "bg-emerald-950/20 border-emerald-500/30" :
                 "bg-amber-950/20 border-amber-500/30"
               }`}>
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <div className="flex items-center space-x-3">
                     <span className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider ${
                       data.driftAnalysis.status === "CONFIRMED_DRIFT" ? "bg-rose-500/20 text-rose-400 border border-rose-500/30" :
@@ -317,9 +364,17 @@ export default function ReviewStudioPage() {
                       Severity: <span className="text-white">{data.driftAnalysis.severity}</span>
                     </span>
                   </div>
-                  <span className="text-xs text-slate-400 font-mono">
-                    AI Confidence: {data.driftAnalysis.confidence}
-                  </span>
+
+                  <div className="flex items-center space-x-3 text-xs font-mono text-slate-400">
+                    {data.driftAnalysis.modelMetadata && (
+                      <span>
+                        AI Model: <span className="text-indigo-400 font-semibold">{data.driftAnalysis.modelMetadata.modelUsed}</span>
+                        {data.driftAnalysis.modelMetadata.fallbackUsed && (
+                          <span className="ml-1 text-amber-400 text-2xs">(Fallback)</span>
+                        )}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <h3 className="text-lg font-bold text-white mb-2">{data.driftAnalysis.summary}</h3>
@@ -336,29 +391,60 @@ export default function ReviewStudioPage() {
                   </div>
                 )}
 
-                {data.driftAnalysis.reasoningEvidence.length > 0 && (
-                  <div>
-                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Grounding Evidence:</h4>
-                    <ul className="list-disc list-inside text-xs text-slate-400 space-y-1 font-mono">
-                      {data.driftAnalysis.reasoningEvidence.map((item, i) => (
-                        <li key={i}>{item}</li>
-                      ))}
-                    </ul>
+                {/* Stage 2 Action: Generate Documentation Update */}
+                {data.driftAnalysis.status === "CONFIRMED_DRIFT" && !generationData && (
+                  <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between flex-wrap gap-4">
+                    <div className="text-xs text-slate-300">
+                      Documentation drift is confirmed. Generate a formatted Markdown update using SkillPatch.
+                    </div>
+                    <button
+                      onClick={handleGenerate}
+                      disabled={loadingGeneration}
+                      className="bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white font-medium py-2 px-5 rounded-lg text-xs transition flex items-center space-x-2 shadow-lg shadow-indigo-600/20"
+                    >
+                      {loadingGeneration ? (
+                        <>
+                          <span className="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full" />
+                          <span>Generating Update...</span>
+                        </>
+                      ) : (
+                        <span>Generate Documentation Update</span>
+                      )}
+                    </button>
+                  </div>
+                )}
+
+                {data.driftAnalysis.status === "UNCERTAIN" && (
+                  <div className="mt-4 p-3 rounded bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs">
+                    ⚠️ Drift evidence is uncertain. Verify available source snippets before generating updates.
                   </div>
                 )}
               </section>
             )}
 
-            {/* Side-by-Side Documentation Studio */}
-            {data.driftAnalysis?.status !== "NO_DRIFT" && (
-              <section className="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+            {generationError && (
+              <div className="p-4 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm">
+                ⚠️ Generation Error: {generationError}
+              </div>
+            )}
+
+            {/* Stage 2 Result: Side-by-Side Documentation Studio */}
+            {generationData && (
+              <section className="bg-slate-900/40 border border-slate-800 rounded-xl p-6 animate-fadeIn">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wider">
                     Side-by-Side Documentation Studio
                   </h3>
-                  <span className="text-xs text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded border border-indigo-500/20 font-mono">
-                    SkillPatch: api-documentation
-                  </span>
+                  <div className="flex items-center space-x-3 text-xs font-mono">
+                    {generationData.modelMetadata && (
+                      <span className="text-slate-400">
+                        Model: <span className="text-indigo-400">{generationData.modelMetadata.modelUsed}</span>
+                      </span>
+                    )}
+                    <span className="text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded border border-indigo-500/20">
+                      SkillPatch: api-documentation
+                    </span>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -380,16 +466,16 @@ export default function ReviewStudioPage() {
                     <div className="text-xs font-bold text-indigo-400 border-b border-slate-800 pb-2 mb-3 flex items-center justify-between">
                       <span>Proposed Documentation Update (SkillPatch)</span>
                       <span className="text-indigo-400 font-mono">
-                        {data.generationResult?.targetFile || "README.md"}
+                        {generationData.targetFile}
                       </span>
                     </div>
                     <pre className="text-xs text-emerald-300 font-mono overflow-auto flex-1 p-2 bg-slate-900/50 rounded whitespace-pre-wrap leading-relaxed">
-                      {data.generationResult?.generatedContent || "Generating documentation update..."}
+                      {generationData.generatedContent}
                     </pre>
                   </div>
                 </div>
 
-                {/* Review & Sync Action Controls */}
+                {/* Stage 3 Action: Approve & Sync */}
                 <div className="mt-8 pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="text-xs text-slate-400">
                     {syncResult?.status === "SYNCED" && (

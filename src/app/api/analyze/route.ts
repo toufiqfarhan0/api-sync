@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { parseApiChangesFromFiles } from "../../../lib/api-parser";
 import { collectDocContextForChanges, DocumentationFile } from "../../../lib/doc-collector";
-import { generateDocUpdate } from "../../../lib/doc-generator";
 import { analyzeDocDrift } from "../../../lib/drift-engine";
 import { createOctokitClient, fetchPullRequestData, GitHubServiceError } from "../../../lib/github";
 import { parseGitHubUrlOrInput } from "./parser";
@@ -43,21 +42,11 @@ export async function POST(req: Request) {
 
     const collectorResult = collectDocContextForChanges(parseResult.changes, docFiles);
 
-    // 4. Gemini Drift Detection
+    // 4. Gemini Drift Detection (Stage 1 ends here)
     const driftResult = await analyzeDocDrift({
       apiChanges: parseResult.changes,
       docContexts: collectorResult.contexts,
     });
-
-    // 5. SkillPatch Documentation Generation
-    let generationResult = null;
-    if (driftResult.status !== "NO_DRIFT") {
-      generationResult = await generateDocUpdate({
-        apiChanges: parseResult.changes,
-        docContexts: collectorResult.contexts,
-        driftAnalysis: driftResult,
-      });
-    }
 
     return NextResponse.json({
       success: true,
@@ -67,7 +56,6 @@ export async function POST(req: Request) {
       totalRoutesIdentified: parseResult.totalRoutesIdentified,
       docContexts: collectorResult.contexts,
       driftAnalysis: driftResult,
-      generationResult,
     });
   } catch (err: unknown) {
     if (err instanceof GitHubServiceError) {

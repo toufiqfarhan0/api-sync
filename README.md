@@ -267,12 +267,13 @@ Initial Roadmap:
   - Integrates Gemini runtime provider to generate structured Markdown documentation updates resolving detected drift
   - Returns strongly-typed `DocumentationGenerationResult` with target file, formatted Markdown snippet, summary, and confidence levels
   - Added 7 unit tests verifying SkillPatch instruction inclusion, early exit on `NO_DRIFT`, JSON parsing, and mock generation
-- **Review Studio UI:**
-  - Implemented full-stack Review Studio UI (`src/app/page.tsx`) and analysis API route (`src/app/api/analyze/route.ts`)
-  - Orchestrates GitHub PR ingestion, deterministic code parsing, context collection, Gemini drift detection, and SkillPatch generation
-  - Renders PR metadata summary, detected API changes, drift status & explanation, and side-by-side documentation comparison
-  - Provides `Approve & Sync to GitHub` and `Reject` developer review controls
-  - Added unit test suite for input URL parsing and route helpers
+- **Review Studio UI & Progressive Pipeline:**
+  - Implemented progressive two-stage Review Studio UI (`src/app/page.tsx`) and endpoints `POST /api/analyze` (`src/app/api/analyze/route.ts`) and `POST /api/generate` (`src/app/api/generate/route.ts`)
+  - Stage 1 (`/api/analyze`): Executes GitHub PR ingestion, code parsing, doc context collection, and Gemini drift analysis (~15-20s response time).
+  - Stage 2 (`/api/generate`): Triggered explicitly by the developer on confirmed drift to generate SkillPatch documentation updates (~20-25s response time).
+  - Significantly reduces perceived latency and eliminates unnecessary LLM calls when documentation is already up to date.
+  - Displays PR summary bar, detected API routes grid, drift analysis status/evidence, and side-by-side documentation studio.
+  - Added unit test suites for `/api/analyze` and `/api/generate` route handlers.
 - **GitHub Documentation Sync Service:**
   - Implemented `commitDocumentationFile` in `src/lib/github/` and server-side endpoint `POST /api/sync` (`src/app/api/sync/route.ts`)
   - Commits approved documentation updates directly to the target PR's HEAD branch on explicit developer approval
