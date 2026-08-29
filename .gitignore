@@ -2,6 +2,11 @@
 .DS_Store
 Thumbs.db
 
+# Agent / Tool cache
+.agents/
+.claude/
+skills-lock.json
+
 # Node.js / Next.js / Build output
 node_modules/
 .next/
