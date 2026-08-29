@@ -1,0 +1,10 @@
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# Node.js / Build output (for future use)
+node_modules/
+dist/
+build/
+.env
+.env.local
