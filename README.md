@@ -196,6 +196,7 @@ Initial Roadmap:
 - [x] Next.js application scaffold & setup — complete
 - [x] GitHub PR Ingestion Service (`@octokit/rest`) — complete
 - [x] Deterministic route/controller code diff parser — complete
+- [x] Documentation Context Collector — complete
 - [ ] Gemini drift detection engine — pending
 - [ ] SkillPatch doc generator engine — pending
 - [ ] Review Studio UI — pending
@@ -239,6 +240,13 @@ Initial Roadmap:
   - Identifies change types (`ADDED`, `MODIFIED`, `REMOVED`) from Git patch diffs
   - Added 12 unit tests verifying deterministic extraction and zero hallucination
   - Does NOT use Gemini or AI models; pure deterministic code only
+- **Documentation Context Collector:**
+  - Implemented deterministic documentation section collector in `src/lib/doc-collector/`
+  - Inspects `README.md` and `docs/**/*.md` files to extract sections matching parsed `ApiChange` items
+  - Parses Markdown headings (`#`, `##`, `###`) and performs deterministic matching on paths, HTTP methods, and route keywords
+  - Reports match confidence (`HIGH`, `MEDIUM`, `LOW`) and match reason (`METHOD_AND_PATH`, `EXACT_PATH`, `HEADING_MATCH`, `ROUTE_KEYWORD`)
+  - Added 8 unit tests covering section parsing, exact/partial matching, and unmatched change tracking
+  - Gemini drift detection remains pending (no AI or doc modification performed at this stage)
 
 *(Future entries will be added as real milestones are completed.)*
 
