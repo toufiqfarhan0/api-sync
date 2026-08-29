@@ -88,17 +88,17 @@ Official Competition Rules & Constraints:
 8. [x] Product architecture finalized (PR-driven workflow, Review Studio, Gemini drift engine, SkillPatch doc generator).
 9. [x] Technology stack selected (Next.js, TypeScript, Tailwind CSS, Octokit, Gemini SDK, SkillPatch).
 10. [x] Next.js 15 App Router application scaffolded and verified with TypeScript, Tailwind CSS, and ESLint.
+11. [x] GitHub PR Ingestion Service implemented (`src/lib/github/`) with Octokit and 100% unit test coverage.
 
 ### Pending Milestones
-1. [ ] Implement GitHub service (Octokit PR diff retrieval & file fetching).
-2. [ ] Implement deterministic route change parser.
-3. [ ] Integrate Gemini runtime provider for semantic drift detection.
-4. [ ] Integrate SkillPatch `api-documentation` prompt engine for doc generation.
-5. [ ] Implement interactive Review Studio UI with side-by-side diffs.
-6. [ ] Implement GitHub sync commit action.
-7. [ ] End-to-end testing and validation.
-8. [ ] Demo video & Build in Public preparation.
-9. [ ] Final submission preparation (transcripts, Drive folder, submission form).
+1. [ ] Implement deterministic route change parser module.
+2. [ ] Integrate Gemini runtime provider for semantic drift detection.
+3. [ ] Integrate SkillPatch `api-documentation` prompt engine for doc generation.
+4. [ ] Implement interactive Review Studio UI with side-by-side diffs.
+5. [ ] Implement GitHub sync commit action.
+6. [ ] End-to-end testing and validation.
+7. [ ] Demo video & Build in Public preparation.
+8. [ ] Final submission preparation (transcripts, Drive folder, submission form).
 
 ---
 
@@ -163,7 +163,7 @@ Official Competition Rules & Constraints:
 ---
 
 ## Current State
-Next.js 15 App Router application scaffolded and verified with TypeScript, Tailwind CSS, and ESLint (`npm run lint`, `npm run build`, and `next dev` verified). SkillPatch skill installed at `.latentcode/skills/api-documentation`. Product feature logic implementation has not yet started.
+GitHub PR Ingestion Service implemented (`src/lib/github/`) using Octokit, returning clean normalized data (`NormalizedPullRequestData`) for PR metadata and file patches. Unit test suite passes with 100% coverage via Vitest.
 
 ## Next Step
-Implement the Octokit GitHub Service module for retrieving PR metadata, file diffs, and repository contents.
+Implement the deterministic route change parser module (`src/lib/parser/`) to extract endpoint paths, methods, and parameters from modified files.
