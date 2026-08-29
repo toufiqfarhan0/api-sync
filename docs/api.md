@@ -1,15 +1,12 @@
-# API Reference
+### GET /api/test-users/:id
 
-## Users Endpoint
+Returns a specific user by ID.
 
-### GET /api/test-users
-Returns a list of registered users.
+#### Path Parameters
+| Name | Type | Required |
+|---|---|---|
+| id | string | Yes |
 
-**Response (200 OK):**
-```json
-{
-  "users": [
-    { "id": "1", "name": "Alice", "email": "alice@example.com" }
-  ]
-}
-```
+#### Responses
+- **200 OK**: User found
+- **404 Not Found**: User not found
