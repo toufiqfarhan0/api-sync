@@ -81,7 +81,7 @@ flowchart LR
 - **GitHub Integration:** `@octokit/rest`
 - **Runtime AI Provider:** `@google/genai` (Gemini API)
 - **Skill Engine:** [SkillPatch `api-documentation`](.latentcode/skills/api-documentation/SKILL.md)
-- **Testing:** Vitest (71 unit tests)
+- **Testing:** Vitest (84 unit tests)
 
 ---
 
@@ -125,7 +125,10 @@ Node.js 18+ and npm installed.
 | Variable | Required | Description |
 | :--- | :---: | :--- |
 | `GEMINI_API_KEY` | **Yes** | Server-side key for Gemini drift detection & SkillPatch generation. |
-| `GITHUB_TOKEN` | Optional | GitHub Personal Access Token for higher rate limits and private repo write access. |
+| `SESSION_SECRET` | **Yes** | Dedicated 32+ character secret for AES-256-GCM session encryption. |
+| `GITHUB_TOKEN` | Optional | GitHub Personal Access Token for local dev fallback. |
+| `GITHUB_APP_CLIENT_ID` | Optional | GitHub App Client ID for user OAuth connection flow. |
+| `GITHUB_APP_CLIENT_SECRET` | Optional | GitHub App Client Secret for user OAuth connection flow. |
 
 See [.env.example](.env.example) for template configuration.
 
@@ -158,11 +161,15 @@ api-sync/
 ├── .latentcode/skills/api-documentation/  # Installed SkillPatch skill
 ├── src/
 │   ├── app/                               # Next.js App Router & API routes
+│   │   ├── studio/                        # Standalone Review Studio Page
 │   │   ├── api/analyze/                   # Stage 1: Ingestion & Drift Analysis
 │   │   ├── api/generate/                  # Stage 2: SkillPatch Doc Generation
-│   │   └── api/sync/                      # Stage 3: GitHub PR Commit Sync
+│   │   ├── api/sync/                      # Stage 3: GitHub PR Commit Sync
+│   │   ├── api/auth/                      # GitHub App OAuth & Session Endpoints
+│   │   └── api/github/                    # Authorized Repos & Open PRs Listing
 │   └── lib/
 │       ├── api-parser/                    # Deterministic route & patch parser
+│       ├── auth/                          # AES-256-GCM encrypted session service
 │       ├── doc-collector/                 # Markdown section extraction
 │       ├── doc-generator/                 # SkillPatch loader & doc engine
 │       ├── drift-engine/                  # Gemini semantic drift analyzer
