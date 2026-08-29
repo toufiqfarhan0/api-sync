@@ -30,19 +30,19 @@ SyncGuard operates as a progressive 3-stage review pipeline:
 flowchart LR
     U[Developer] --> UI[SyncGuard Review Studio]
 
-    UI --> A[/api/analyze]
+    UI --> A["/api/analyze"]
     A --> GH[GitHub Service]
     GH --> P[API Change Parser]
     P --> C[Documentation Context Collector]
     C --> D[Gemini Drift Engine]
     D --> R[Gemini Model Router]
 
-    UI --> G[/api/generate]
+    UI --> G["/api/generate"]
     G --> SG[SkillPatch api-documentation]
     SG --> DG[Documentation Generator]
     DG --> R
 
-    UI --> S[/api/sync]
+    UI --> S["/api/sync"]
     S --> GS[GitHub Documentation Sync]
     GS --> PR[PR Head Branch]
 

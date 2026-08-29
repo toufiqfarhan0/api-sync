@@ -97,6 +97,7 @@ Official Competition Rules & Constraints:
 17. [x] Review Studio UI & Analysis Orchestration API implemented (`src/app/page.tsx` & `src/app/api/analyze/route.ts`).
 18. [x] GitHub Documentation Sync Service implemented (`src/app/api/sync/route.ts` & `src/lib/github/service.ts`) with SHA concurrency protection.
 19. [x] Progressive Two-Stage Review Workflow implemented (`/api/analyze` & `/api/generate`) reducing perceived latency.
+20. [x] User GitHub Connection & Authentication Flow implemented (`src/lib/auth/` & `/api/auth/`) supporting GitHub App OAuth authorization with encrypted HTTP-only session cookies and `GITHUB_TOKEN` local fallback.
 
 ### Pending Milestones
 1. [ ] End-to-end testing and validation.
@@ -166,7 +167,7 @@ Official Competition Rules & Constraints:
 ---
 
 ## Current State
-Progressive Two-Stage Review Workflow implemented (`/api/analyze` & `/api/generate`). `/api/analyze` performs fast drift diagnosis (~15-20s), while `/api/generate` is triggered explicitly on confirmed drift (~20-25s). Eliminates duplicate LLM calls and cuts perceived developer wait time by 50-60%. Passes 71 total unit tests via Vitest.
+User GitHub Connection & Authentication Flow implemented (`src/lib/auth/` & `/api/auth/`). Supports GitHub App OAuth authorization with encrypted HTTP-only session cookies and `GITHUB_TOKEN` local fallback. Passes 82 total unit tests via Vitest.
 
 ## Next Step
 Perform final end-to-end demo recording and submission asset preparation.

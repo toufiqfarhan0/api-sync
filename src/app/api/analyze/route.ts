@@ -1,5 +1,7 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { parseApiChangesFromFiles } from "../../../lib/api-parser";
+import { parseSession, SESSION_COOKIE_NAME } from "../../../lib/auth";
 import { collectDocContextForChanges, DocumentationFile } from "../../../lib/doc-collector";
 import { analyzeDocDrift } from "../../../lib/drift-engine";
 import { createOctokitClient, fetchPullRequestData, GitHubServiceError } from "../../../lib/github";
@@ -10,15 +12,21 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { owner, repo, pullNumber } = parseGitHubUrlOrInput(body.repoInput || body.url || "", body.pullNumber);
 
-    // 1. Fetch GitHub PR data
-    const prData = await fetchPullRequestData({ owner, repo, pullNumber });
+    // Extract user session token if authenticated via GitHub App
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+    const session = parseSession(sessionCookie);
+    const userToken = session?.accessToken;
+
+    // 1. Fetch GitHub PR data using user token (or GITHUB_TOKEN fallback)
+    const prData = await fetchPullRequestData({ owner, repo, pullNumber, token: userToken });
 
     // 2. Parse API code changes
     const parseResult = parseApiChangesFromFiles(prData.files);
 
     // 3. Collect Documentation Context (fetch repo docs via Octokit or use PR changed .md files)
     const docFiles: DocumentationFile[] = [];
-    const client = createOctokitClient();
+    const client = createOctokitClient(userToken);
 
     // Fetch README.md from repo base
     try {

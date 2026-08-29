@@ -1,4 +1,6 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { parseSession, SESSION_COOKIE_NAME } from "../../../lib/auth";
 import { commitDocumentationFile } from "../../../lib/github";
 
 export async function POST(req: Request) {
@@ -20,6 +22,12 @@ export async function POST(req: Request) {
       );
     }
 
+    // Extract user session token if authenticated
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+    const session = parseSession(sessionCookie);
+    const userToken = session?.accessToken;
+
     const result = await commitDocumentationFile({
       owner: String(owner).trim(),
       repo: String(repo).trim(),
@@ -27,6 +35,7 @@ export async function POST(req: Request) {
       filePath: String(filePath).trim(),
       content: String(content),
       expectedSha: expectedSha ? String(expectedSha) : undefined,
+      token: userToken,
     });
 
     const httpStatus =

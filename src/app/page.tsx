@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface ApiChangeItem {
   method: string;
@@ -76,6 +76,15 @@ interface SyncResponse {
   message: string;
 }
 
+interface AuthState {
+  authenticated: boolean;
+  user?: {
+    login: string;
+    avatarUrl: string;
+  };
+  authMethod?: string;
+}
+
 export default function SyncGuardPage() {
   const studioRef = useRef<HTMLDivElement>(null);
   
@@ -92,6 +101,24 @@ export default function SyncGuardPage() {
   const [generationData, setGenerationData] = useState<GenerationData | null>(null);
   const [reviewState, setReviewState] = useState<"IDLE" | "APPROVED" | "REJECTED">("IDLE");
   const [syncResult, setSyncResult] = useState<SyncResponse | null>(null);
+
+  const [auth, setAuth] = useState<AuthState>({ authenticated: false });
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => res.json())
+      .then((json: AuthState) => setAuth(json))
+      .catch(() => setAuth({ authenticated: false }));
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      setAuth({ authenticated: false });
+    } catch {
+      // Ignore
+    }
+  };
 
   const scrollToStudio = () => {
     studioRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -234,12 +261,34 @@ export default function SyncGuardPage() {
             <a href="#review-studio" className="hover:text-slate-200 transition">Review Studio</a>
           </nav>
 
-          <button
-            onClick={scrollToStudio}
-            className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2 rounded-lg text-sm transition shadow-lg shadow-indigo-600/20"
-          >
-            Analyze a PR
-          </button>
+          <div className="flex items-center space-x-3">
+            {auth.authenticated && auth.user ? (
+              <div className="flex items-center space-x-3 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl">
+                <span className="text-xs text-slate-300 font-medium">@{auth.user.login}</span>
+                <span className="text-2xs text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded font-mono">Connected</span>
+                <button
+                  onClick={handleLogout}
+                  className="text-xs text-slate-500 hover:text-slate-300 transition"
+                >
+                  Disconnect
+                </button>
+              </div>
+            ) : (
+              <a
+                href="/api/auth/github"
+                className="bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-medium px-3.5 py-1.5 rounded-lg text-xs transition flex items-center space-x-2"
+              >
+                <span>Connect GitHub</span>
+              </a>
+            )}
+
+            <button
+              onClick={scrollToStudio}
+              className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2 rounded-lg text-sm transition shadow-lg shadow-indigo-600/20"
+            >
+              Analyze a PR
+            </button>
+          </div>
         </div>
       </header>
 
@@ -248,15 +297,15 @@ export default function SyncGuardPage() {
         <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold">
           <span>BuildSprint 2026</span>
           <span className="text-slate-600">•</span>
-          <span>Powered by Gemini & SkillPatch</span>
+          <span>Powered by Gemini &amp; SkillPatch</span>
         </div>
 
-          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-none">
-            Your API changed. <br />
-            <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-300 bg-clip-text text-transparent">
-              Your docs shouldn&apos;t fall behind.
-            </span>
-          </h1>
+        <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-none">
+          Your API changed. <br />
+          <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-300 bg-clip-text text-transparent">
+            Your docs shouldn&apos;t fall behind.
+          </span>
+        </h1>
 
         <p className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
           SyncGuard detects API documentation drift in GitHub pull requests, explains what became stale, and generates a reviewable fix before your team ships it.

@@ -9,6 +9,11 @@ import {
   SyncDocumentationInput,
 } from "./types";
 
+/**
+ * Creates an Octokit instance using credential priority:
+ * 1. User session access token (passed explicitly via `token` parameter)
+ * 2. `process.env.GITHUB_TOKEN` (local development fallback)
+ */
 export function createOctokitClient(token?: string): Octokit {
   const authToken = token || process.env.GITHUB_TOKEN;
   return new Octokit({
