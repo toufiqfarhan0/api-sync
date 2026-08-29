@@ -1,5 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 import { parseApiChangesFromFiles } from "../../../lib/api-parser";
 import { parseSession, SESSION_COOKIE_NAME } from "../../../lib/auth";
 import { collectDocContextForChanges, DocumentationFile } from "../../../lib/doc-collector";

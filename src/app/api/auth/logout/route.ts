@@ -1,5 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 import { SESSION_COOKIE_NAME, STATE_COOKIE_NAME } from "../../../../lib/auth";
 
 export async function POST() {

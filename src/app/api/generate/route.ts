@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 import { generateDocUpdate } from "../../../lib/doc-generator";
 
 export async function POST(req: Request) {
