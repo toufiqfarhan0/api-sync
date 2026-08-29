@@ -90,6 +90,7 @@ Official Competition Rules & Constraints:
 10. [x] Next.js 15 App Router application scaffolded and verified with TypeScript, Tailwind CSS, and ESLint.
 11. [x] GitHub PR Ingestion Service implemented (`src/lib/github/`) with Octokit and 100% unit test coverage.
 12. [x] Deterministic API Change Parser implemented (`src/lib/api-parser/`) with 12 unit tests and 0 AI dependencies.
+13. [x] Documentation Context Collector implemented (`src/lib/doc-collector/`) with 8 unit tests for Markdown section extraction.
 
 ### Pending Milestones
 1. [ ] Integrate Gemini runtime provider for semantic drift detection.
@@ -163,7 +164,7 @@ Official Competition Rules & Constraints:
 ---
 
 ## Current State
-Deterministic API Change Parser implemented (`src/lib/api-parser/`) without AI or model dependencies. Correctly parses Express/Koa/FastAPI routes and Next.js App Router handlers, extracting HTTP methods, paths, path/query parameters, request body fields, and status codes. Passes 12 unit tests via Vitest.
+Documentation Context Collector implemented (`src/lib/doc-collector/`). Deterministically matches parsed `ApiChange` items against Markdown documentation files (`README.md`, `docs/*.md`) by headings, exact paths, and methods, extracting relevant doc snippets. Passes 8 unit tests via Vitest.
 
 ## Next Step
-Integrate the Gemini runtime provider module (`src/lib/gemini/`) to compare extracted API code changes against existing repository documentation files and perform semantic drift detection.
+Integrate the Gemini runtime provider module (`src/lib/gemini/`) to compare extracted API code changes against collected documentation context and perform semantic drift detection.
