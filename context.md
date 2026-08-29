@@ -91,15 +91,15 @@ Official Competition Rules & Constraints:
 11. [x] GitHub PR Ingestion Service implemented (`src/lib/github/`) with Octokit and 100% unit test coverage.
 12. [x] Deterministic API Change Parser implemented (`src/lib/api-parser/`) with 12 unit tests and 0 AI dependencies.
 13. [x] Documentation Context Collector implemented (`src/lib/doc-collector/`) with 8 unit tests for Markdown section extraction.
+14. [x] Gemini Semantic Drift Engine implemented (`src/lib/drift-engine/`) using `gemini-2.0-flash` with 10 unit tests.
 
 ### Pending Milestones
-1. [ ] Integrate Gemini runtime provider for semantic drift detection.
-2. [ ] Integrate SkillPatch `api-documentation` prompt engine for doc generation.
-3. [ ] Implement interactive Review Studio UI with side-by-side diffs.
-4. [ ] Implement GitHub sync commit action.
-5. [ ] End-to-end testing and validation.
-6. [ ] Demo video & Build in Public preparation.
-7. [ ] Final submission preparation (transcripts, Drive folder, submission form).
+1. [ ] Integrate SkillPatch `api-documentation` prompt engine for doc generation.
+2. [ ] Implement interactive Review Studio UI with side-by-side diffs.
+3. [ ] Implement GitHub sync commit action.
+4. [ ] End-to-end testing and validation.
+5. [ ] Demo video & Build in Public preparation.
+6. [ ] Final submission preparation (transcripts, Drive folder, submission form).
 
 ---
 
@@ -164,7 +164,7 @@ Official Competition Rules & Constraints:
 ---
 
 ## Current State
-Documentation Context Collector implemented (`src/lib/doc-collector/`). Deterministically matches parsed `ApiChange` items against Markdown documentation files (`README.md`, `docs/*.md`) by headings, exact paths, and methods, extracting relevant doc snippets. Passes 8 unit tests via Vitest.
+Gemini Semantic Drift Engine implemented (`src/lib/drift-engine/`) using `@google/genai` and `gemini-2.0-flash`. Evaluates code changes against documentation context to return structured `DriftAnalysisResult` (`CONFIRMED_DRIFT`, `NO_DRIFT`, `UNCERTAIN`) with zero-hallucination evidence enforcement. Passes 10 unit tests via Vitest (38 total unit tests in project).
 
 ## Next Step
-Integrate the Gemini runtime provider module (`src/lib/gemini/`) to compare extracted API code changes against collected documentation context and perform semantic drift detection.
+Integrate the SkillPatch `api-documentation` prompt engine (`src/lib/skillpatch/`) to generate structured, formatted documentation updates for detected drift.

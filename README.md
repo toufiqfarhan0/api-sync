@@ -197,7 +197,7 @@ Initial Roadmap:
 - [x] GitHub PR Ingestion Service (`@octokit/rest`) — complete
 - [x] Deterministic route/controller code diff parser — complete
 - [x] Documentation Context Collector — complete
-- [ ] Gemini drift detection engine — pending
+- [x] Gemini semantic drift engine (`gemini-2.0-flash`) — complete
 - [ ] SkillPatch doc generator engine — pending
 - [ ] Review Studio UI — pending
 - [ ] Review experience — pending
@@ -246,7 +246,13 @@ Initial Roadmap:
   - Parses Markdown headings (`#`, `##`, `###`) and performs deterministic matching on paths, HTTP methods, and route keywords
   - Reports match confidence (`HIGH`, `MEDIUM`, `LOW`) and match reason (`METHOD_AND_PATH`, `EXACT_PATH`, `HEADING_MATCH`, `ROUTE_KEYWORD`)
   - Added 8 unit tests covering section parsing, exact/partial matching, and unmatched change tracking
-  - Gemini drift detection remains pending (no AI or doc modification performed at this stage)
+- **Gemini Semantic Drift Engine:**
+  - Added `@google/genai` dependency and implemented runtime server-side drift analyzer in `src/lib/drift-engine/`
+  - Uses `gemini-2.0-flash` with strict zero-hallucination system prompt to compare code changes against collected documentation context
+  - Returns strongly-typed `DriftAnalysisResult` (`CONFIRMED_DRIFT`, `NO_DRIFT`, `UNCERTAIN`) with severity, summary, explanation, missing/outdated info, and evidence
+  - Enforces server-side secret management (`GEMINI_API_KEY` from environment variables)
+  - Added 10 unit tests with mock Gemini clients covering drift detection, JSON validation, and error handling
+  - SkillPatch documentation generator and Review Studio UI remain pending
 
 *(Future entries will be added as real milestones are completed.)*
 

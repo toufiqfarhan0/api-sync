@@ -10,6 +10,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@google/genai": "^2.19.0",
     "@octokit/rest": "^22.0.1",
     "next": "15.2.0",
     "react": "19.0.0",
