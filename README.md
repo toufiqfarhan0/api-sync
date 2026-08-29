@@ -194,8 +194,11 @@ Initial Roadmap:
 - [x] SkillPatch installation (`.latentcode/skills/api-documentation`) — complete
 - [x] Product architecture & tech stack selection — complete
 - [x] Next.js application scaffold & setup — complete
-- [ ] Core implementation (GitHub Service) — pending
-- [ ] Documentation synchronization workflow — pending
+- [x] GitHub PR Ingestion Service (`@octokit/rest`) — complete
+- [ ] Route/controller code diff parser — pending
+- [ ] Gemini drift detection engine — pending
+- [ ] SkillPatch doc generator engine — pending
+- [ ] Review Studio UI — pending
 - [ ] Review experience — pending
 - [ ] Testing and reliability — pending
 - [ ] Demo preparation — pending
@@ -222,7 +225,13 @@ Initial Roadmap:
   - Created Next.js 15 App Router foundation with TypeScript and Tailwind CSS
   - Configured ESLint and PostCSS
   - Verified `npm run lint`, `npm run build`, and `next dev` local server execution
-  - Product feature implementation pending
+- **GitHub PR Ingestion Service:**
+  - Added `@octokit/rest` dependency
+  - Implemented typed `fetchPullRequestData` service in `src/lib/github/`
+  - Retrieves PR metadata, changed file list, status, additions/deletions, and raw patch/diff content
+  - Normalizes responses into clean internal TypeScript structures (`NormalizedPullRequestData`)
+  - Added unit test suite with 100% test coverage using Vitest
+  - Does NOT yet perform route parsing, drift detection, or GitHub writes/commits
 
 *(Future entries will be added as real milestones are completed.)*
 
