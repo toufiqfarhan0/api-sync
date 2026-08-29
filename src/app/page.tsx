@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 interface ApiChangeItem {
   method: string;
@@ -76,7 +76,9 @@ interface SyncResponse {
   message: string;
 }
 
-export default function ReviewStudioPage() {
+export default function SyncGuardPage() {
+  const studioRef = useRef<HTMLDivElement>(null);
+  
   const [repoInput, setRepoInput] = useState("");
   const [pullNumberInput, setPullNumberInput] = useState("");
   const [loadingAnalysis, setLoadingAnalysis] = useState(false);
@@ -90,6 +92,10 @@ export default function ReviewStudioPage() {
   const [generationData, setGenerationData] = useState<GenerationData | null>(null);
   const [reviewState, setReviewState] = useState<"IDLE" | "APPROVED" | "REJECTED">("IDLE");
   const [syncResult, setSyncResult] = useState<SyncResponse | null>(null);
+
+  const scrollToStudio = () => {
+    studioRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   // Stage 1: Analyze PR & Detect Drift
   const handleAnalyze = async (e: React.FormEvent) => {
@@ -208,33 +214,201 @@ export default function ReviewStudioPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
-      {/* Top Header */}
-      <header className="border-b border-slate-800 bg-slate-900/60 backdrop-blur sticky top-0 z-50">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500/30 selection:text-indigo-200">
+      {/* Navigation Header */}
+      <header className="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
-              ⚡
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
+              🛡️
             </div>
-            <span className="text-xl font-bold tracking-tight text-white">API-Sync AI</span>
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-              BuildSprint 2026
+            <span className="text-xl font-extrabold tracking-tight text-white">SyncGuard</span>
+            <span className="hidden sm:inline-block text-2xs font-semibold px-2 py-0.5 rounded-md bg-slate-800 text-slate-400 border border-slate-700">
+              API-Sync AI
             </span>
           </div>
-          <div className="text-sm text-slate-400">
-            Progressive Two-Stage Documentation Review Studio
-          </div>
+
+          <nav className="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-400">
+            <a href="#how-it-works" className="hover:text-slate-200 transition">How It Works</a>
+            <a href="#architecture" className="hover:text-slate-200 transition">Architecture</a>
+            <a href="#review-studio" className="hover:text-slate-200 transition">Review Studio</a>
+          </nav>
+
+          <button
+            onClick={scrollToStudio}
+            className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2 rounded-lg text-sm transition shadow-lg shadow-indigo-600/20"
+          >
+            Analyze a PR
+          </button>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-8 flex-1 w-full space-y-8">
-        {/* Input Card */}
-        <section className="bg-slate-900/40 border border-slate-800 rounded-xl p-6 shadow-xl">
-          <h2 className="text-lg font-semibold text-white mb-2">Analyze Pull Request</h2>
-          <p className="text-sm text-slate-400 mb-6">
-            Enter a GitHub Pull Request URL to detect API documentation drift instantly.
-          </p>
+      {/* Hero Section */}
+      <section className="relative pt-20 pb-16 px-6 max-w-7xl mx-auto text-center space-y-8">
+        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold">
+          <span>BuildSprint 2026</span>
+          <span className="text-slate-600">•</span>
+          <span>Powered by Gemini & SkillPatch</span>
+        </div>
 
+          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-none">
+            Your API changed. <br />
+            <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-300 bg-clip-text text-transparent">
+              Your docs shouldn&apos;t fall behind.
+            </span>
+          </h1>
+
+        <p className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
+          SyncGuard detects API documentation drift in GitHub pull requests, explains what became stale, and generates a reviewable fix before your team ships it.
+        </p>
+
+        <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+          <button
+            onClick={scrollToStudio}
+            className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-6 py-3 rounded-xl text-sm transition shadow-xl shadow-indigo-600/25 flex items-center space-x-2"
+          >
+            <span>Analyze a PR</span>
+            <span>→</span>
+          </button>
+          <a
+            href="#how-it-works"
+            className="bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 font-medium px-6 py-3 rounded-xl text-sm transition"
+          >
+            See How It Works
+          </a>
+        </div>
+
+        {/* Product Transformation Visual Preview */}
+        <div className="pt-10 max-w-5xl mx-auto">
+          <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-2xl backdrop-blur text-left grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-slate-950 p-4 rounded-xl border border-slate-800/80 space-y-2">
+              <div className="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center justify-between">
+                <span>1. Code Changed</span>
+                <span className="text-2xs font-mono">users.ts</span>
+              </div>
+              <p className="font-mono text-xs text-slate-300 bg-slate-900 p-2 rounded">
+                + router.get(&apos;/users/:id&apos;)
+              </p>
+              <p className="text-2xs text-slate-500">Added required :id path parameter &amp; 404 response</p>
+            </div>
+
+            <div className="bg-slate-950 p-4 rounded-xl border border-amber-500/30 space-y-2">
+              <div className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center justify-between">
+                <span>2. Drift Flagged</span>
+                <span className="text-2xs font-mono">Gemini AI</span>
+              </div>
+              <p className="text-xs text-amber-200 bg-amber-950/20 border border-amber-500/20 p-2 rounded leading-normal">
+                README.md still describes GET /users without :id
+              </p>
+              <p className="text-2xs text-slate-500">Semantic mismatch detected automatically</p>
+            </div>
+
+            <div className="bg-slate-950 p-4 rounded-xl border border-emerald-500/30 space-y-2">
+              <div className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center justify-between">
+                <span>3. Synced Fix</span>
+                <span className="text-2xs font-mono">SkillPatch</span>
+              </div>
+              <p className="font-mono text-xs text-emerald-300 bg-emerald-950/20 border border-emerald-500/20 p-2 rounded">
+                ### GET /users/:id
+              </p>
+              <p className="text-2xs text-slate-500">Committed back to GitHub PR branch</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section id="how-it-works" className="py-16 px-6 max-w-7xl mx-auto w-full border-t border-slate-800/80 space-y-12">
+        <div className="text-center space-y-3">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">How SyncGuard Works</h2>
+          <p className="text-sm text-slate-400 max-w-xl mx-auto">
+            A 4-step progressive workflow combining deterministic parsing with evidence-grounded AI.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-6 space-y-3">
+            <div className="text-2xl font-bold text-indigo-400">01</div>
+            <h3 className="text-base font-semibold text-white">Detect</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Fetches GitHub PR diffs and deterministically parses Express/Nest/FastAPI routes and Next.js handlers.
+            </p>
+          </div>
+
+          <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-6 space-y-3">
+            <div className="text-2xl font-bold text-indigo-400">02</div>
+            <h3 className="text-base font-semibold text-white">Understand</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Gemini evaluates code changes against matching repository docs to pinpoint semantic drift with evidence.
+            </p>
+          </div>
+
+          <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-6 space-y-3">
+            <div className="text-2xl font-bold text-indigo-400">03</div>
+            <h3 className="text-base font-semibold text-white">Generate</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              The installed SkillPatch <code className="text-indigo-300 font-mono">api-documentation</code> skill formats pristine Markdown tables and curl examples.
+            </p>
+          </div>
+
+          <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-6 space-y-3">
+            <div className="text-2xl font-bold text-indigo-400">04</div>
+            <h3 className="text-base font-semibold text-white">Sync</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Developer reviews the side-by-side proposal and approves one-click commit back to the PR branch.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Architecture Section */}
+      <section id="architecture" className="py-16 px-6 max-w-7xl mx-auto w-full border-t border-slate-800/80 space-y-8">
+        <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-8 space-y-6">
+          <div className="max-w-2xl space-y-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-indigo-400">Reliable Engineering</span>
+            <h2 className="text-2xl font-bold text-white tracking-tight">
+              Deterministic Extraction + Gemini Reasoning + SkillPatch + Human Approval
+            </h2>
+            <p className="text-sm text-slate-400 leading-relaxed">
+              SyncGuard avoids raw AI hallucination by isolating code parsing, using evidence-grounded LLM drift detection, and requiring explicit developer approval before any repository commits occur.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+            <div className="p-4 bg-slate-950 rounded-xl border border-slate-800">
+              <div className="font-semibold text-white mb-1">Deterministic Code Parser</div>
+              <div className="text-slate-400 leading-normal">Zero-AI regex parser extracts route paths, path parameters, query parameters, and status codes.</div>
+            </div>
+            <div className="p-4 bg-slate-950 rounded-xl border border-slate-800">
+              <div className="font-semibold text-white mb-1">Gemini Model Router</div>
+              <div className="text-slate-400 leading-normal">Automatic fallback (<code className="text-indigo-300">3.7-flash</code> → <code className="text-indigo-300">3.6-flash</code>) handles rate limits and model availability.</div>
+            </div>
+            <div className="p-4 bg-slate-950 rounded-xl border border-slate-800">
+              <div className="font-semibold text-white mb-1">SkillPatch Engine</div>
+              <div className="text-slate-400 leading-normal">Consumes local <code className="text-indigo-300">SKILL.md</code> instructions to format standard API tables and schemas.</div>
+            </div>
+            <div className="p-4 bg-slate-950 rounded-xl border border-slate-800">
+              <div className="font-semibold text-white mb-1">SHA Concurrency Sync</div>
+              <div className="text-slate-400 leading-normal">Checks target file SHA on GitHub to prevent stale overwrites or concurrent conflicts.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Review Studio Application Area */}
+      <section id="review-studio" ref={studioRef} className="py-16 px-6 max-w-7xl mx-auto w-full border-t border-slate-800/80 space-y-8">
+        <div className="space-y-2">
+          <div className="inline-flex items-center space-x-2 text-xs font-semibold text-indigo-400 uppercase tracking-wider">
+            <span>Primary Application</span>
+          </div>
+          <h2 className="text-3xl font-bold text-white tracking-tight">Review Studio</h2>
+          <p className="text-sm text-slate-400">
+            Paste a GitHub Pull Request URL to analyze documentation drift and preview synchronized updates.
+          </p>
+        </div>
+
+        {/* Input Form Card */}
+        <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
           <form onSubmit={handleAnalyze} className="grid grid-cols-1 md:grid-cols-12 gap-4">
             <div className="md:col-span-8">
               <label htmlFor="repoInput" className="block text-xs font-medium text-slate-400 mb-1">
@@ -246,13 +420,13 @@ export default function ReviewStudioPage() {
                 value={repoInput}
                 onChange={(e) => setRepoInput(e.target.value)}
                 placeholder="https://github.com/owner/repo/pull/1 or owner/repo"
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 
             <div className="md:col-span-2">
               <label htmlFor="pullNumberInput" className="block text-xs font-medium text-slate-400 mb-1">
-                PR # (Optional if in URL)
+                PR # (Optional)
               </label>
               <input
                 id="pullNumberInput"
@@ -260,7 +434,7 @@ export default function ReviewStudioPage() {
                 value={pullNumberInput}
                 onChange={(e) => setPullNumberInput(e.target.value)}
                 placeholder="1"
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 
@@ -268,7 +442,7 @@ export default function ReviewStudioPage() {
               <button
                 type="submit"
                 disabled={loadingAnalysis || loadingGeneration || syncing}
-                className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white font-medium py-2.5 px-4 rounded-lg transition text-sm flex items-center justify-center space-x-2 shadow-lg shadow-indigo-600/20"
+                className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white font-semibold py-3 px-4 rounded-xl transition text-sm flex items-center justify-center space-x-2 shadow-lg shadow-indigo-600/20"
               >
                 {loadingAnalysis ? (
                   <>
@@ -283,21 +457,21 @@ export default function ReviewStudioPage() {
           </form>
 
           {error && (
-            <div className="mt-4 p-4 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm">
+            <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm">
               ⚠️ {error}
             </div>
           )}
-        </section>
+        </div>
 
         {/* Stage 1 Results Area */}
         {data && (
           <div className="space-y-8 animate-fadeIn">
             {/* PR Summary Bar */}
             {data.prMetadata && (
-              <section className="bg-slate-900/60 border border-slate-800 rounded-xl p-6 flex flex-wrap items-center justify-between gap-4">
+              <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-6 flex flex-wrap items-center justify-between gap-4">
                 <div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-xs font-bold px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                    <span className="text-xs font-bold px-2.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
                       PR #{data.prMetadata.number}
                     </span>
                     <h3 className="text-lg font-bold text-white">{data.prMetadata.title}</h3>
@@ -314,13 +488,13 @@ export default function ReviewStudioPage() {
                     <span className="text-slate-400">{data.summary.changedFilesCount} files changed</span>
                   </div>
                 )}
-              </section>
+              </div>
             )}
 
             {/* Detected API Changes Panel */}
             {data.apiChanges && data.apiChanges.length > 0 && (
-              <section className="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
-                <h3 className="text-sm font-semibold text-slate-300 mb-4 uppercase tracking-wider">
+              <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+                <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">
                   Detected API Code Changes ({data.apiChanges.length})
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -341,12 +515,12 @@ export default function ReviewStudioPage() {
                     </div>
                   ))}
                 </div>
-              </section>
+              </div>
             )}
 
             {/* Drift Status Banner & Reasoning Card */}
             {data.driftAnalysis && (
-              <section className={`border rounded-xl p-6 ${
+              <div className={`border rounded-xl p-6 ${
                 data.driftAnalysis.status === "CONFIRMED_DRIFT" ? "bg-rose-950/20 border-rose-500/30" :
                 data.driftAnalysis.status === "NO_DRIFT" ? "bg-emerald-950/20 border-emerald-500/30" :
                 "bg-amber-950/20 border-amber-500/30"
@@ -419,7 +593,7 @@ export default function ReviewStudioPage() {
                     ⚠️ Drift evidence is uncertain. Verify available source snippets before generating updates.
                   </div>
                 )}
-              </section>
+              </div>
             )}
 
             {generationError && (
@@ -430,9 +604,9 @@ export default function ReviewStudioPage() {
 
             {/* Stage 2 Result: Side-by-Side Documentation Studio */}
             {generationData && (
-              <section className="bg-slate-900/40 border border-slate-800 rounded-xl p-6 animate-fadeIn">
+              <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-6 animate-fadeIn">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wider">
+                  <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                     Side-by-Side Documentation Studio
                   </h3>
                   <div className="flex items-center space-x-3 text-xs font-mono">
@@ -541,11 +715,27 @@ export default function ReviewStudioPage() {
                     </button>
                   </div>
                 </div>
-              </section>
+              </div>
             )}
           </div>
         )}
-      </main>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-slate-800/80 bg-slate-950 py-8 px-6 text-center text-xs text-slate-500">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            SyncGuard by team <span className="text-slate-300 font-medium">LatentForce.ai</span> for BuildSprint 2026.
+          </div>
+          <div className="flex items-center space-x-4">
+            <span>LatentCode</span>
+            <span>•</span>
+            <span>Gemini AI</span>
+            <span>•</span>
+            <span>SkillPatch</span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

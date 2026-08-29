@@ -1,318 +1,190 @@
-# API-Sync AI
+# SyncGuard
 
-API-Sync AI is designed to help API creators, open-source maintainers, and development teams keep their API documentation synchronized with changes in their codebase.
+> API documentation that stays in sync with your code.
 
-**Tagline:** Bridge the gap between evolving code and accurate API documentation.
-
----
-
-## Problem
-
-Technical documentation frequently becomes outdated as codebases and APIs evolve. Development teams move fast, refactoring code, updating function signatures, changing endpoints, and altering data structures. However, updating technical documentation is often a manual, post-hoc process that gets overlooked during rapid development.
-
-Stale API documentation leads to broken client integrations, wasted developer time, increased support overhead, and loss of trust in technical tools and products.
+SyncGuard analyzes GitHub pull requests for API changes, identifies documentation drift, generates targeted documentation fixes using Gemini and SkillPatch, and lets developers review and commit updates directly back to their PR branch.
 
 ---
 
-## Who It's For
+## The Problem
 
-- **API Creators:** Ensure external consumers always have accurate endpoints, payload structures, and example requests matching the live code.
-- **Open-Source Maintainers:** Prevent issue reports and developer confusion caused by outdated README files, guides, and API specifications.
-- **Developer Teams:** Keep internal and external technical documentation aligned with fast-moving code changes without requiring tedious manual documentation audits.
+Codebases evolve much faster than documentation. When developers add endpoint parameters, modify route handlers, or update response schemas, manual documentation updates are often overlooked.
 
----
-
-## Product Vision
-
-API-Sync AI is intended to become an automated documentation synchronization assistant. It aims to continuously monitor codebases for API-related changes, analyze the semantic differences, detect affected documentation, generate precise documentation updates, and provide an intuitive review workflow for developers.
+Over time, this creates **documentation drift** — where the repository's README or API specs contradict the actual code. Stale documentation causes broken frontend/mobile client integrations, wasted engineering hours, and developer frustration.
 
 ---
 
-## How It Should Work
+## How It Works
 
-The intended end-to-end product workflow consists of five conceptual stages:
+SyncGuard operates as a progressive 3-stage review pipeline:
 
-1. **Change Detection:** Detect relevant changes in a codebase, such as API route or parameter modifications.
-2. **Change Analysis:** Understand what changed in the underlying code or API signatures.
-3. **Drift Identification:** Identify documentation that may have become outdated due to code changes.
-4. **Update Generation:** Generate appropriate documentation updates and proposed fixes.
-5. **Review & Sync:** Provide a useful review and update workflow for the developer to inspect and approve changes before syncing.
+1. **Analyze:** Input a GitHub Pull Request URL. SyncGuard deterministically parses modified route code, collects matching documentation sections, and prompts Gemini to perform semantic drift detection.
+2. **Generate:** When drift is confirmed, SyncGuard uses the installed SkillPatch `api-documentation` skill to format a precise Markdown documentation update.
+3. **Sync:** Review the side-by-side proposal in the Review Studio and click **Approve & Sync** to commit the documentation update directly to the PR branch.
 
-*(Note: The above stages reflect the intended conceptual workflow. None of these automated stages are implemented yet.)*
+---
 
-## Product Architecture & Workflow
+## Architecture
 
-API-Sync AI uses a hybrid deterministic and AI-powered architecture designed for safety, accuracy, and developer trust.
+```mermaid
+flowchart LR
+    U[Developer] --> UI[SyncGuard Review Studio]
 
-### Approved End-to-End Workflow
+    UI --> A[/api/analyze]
+    A --> GH[GitHub Service]
+    GH --> P[API Change Parser]
+    P --> C[Documentation Context Collector]
+    C --> D[Gemini Drift Engine]
+    D --> R[Gemini Model Router]
 
-1. **Input & Extraction:** Developer inputs a GitHub repository and Pull Request URL (or number).
-2. **Diff Retrieval:** API-Sync fetches the PR's changed files and diff via the GitHub REST API (Octokit).
-3. **Route & Code Parsing:** Deterministic logic filters modified route/controller files (e.g. Express, FastAPI, NestJS) and extracts endpoint changes.
-4. **Documentation Location:** Deterministic logic locates corresponding documentation files in the repo (`README.md`, `docs/*.md`).
-5. **Semantic Drift Detection (Gemini):** Gemini analyzes the code diff against existing documentation snippets to determine whether documentation drift exists and explains the inconsistency.
-6. **Structured Doc Generation (SkillPatch):** The installed `api-documentation` SkillPatch skill formats and generates precise, standardized Markdown documentation updates from the extracted API changes.
-7. **Interactive Review Studio:** The proposed documentation update and drift explanation are rendered side-by-side for developer inspection.
-8. **Explicit Human Approval & Sync:** Upon explicit developer approval, API-Sync commits the updated documentation directly to the relevant GitHub PR branch.
+    UI --> G[/api/generate]
+    G --> SG[SkillPatch api-documentation]
+    SG --> DG[Documentation Generator]
+    DG --> R
 
-### Core Component Responsibilities
+    UI --> S[/api/sync]
+    S --> GS[GitHub Documentation Sync]
+    GS --> PR[PR Head Branch]
 
-- **Frontend (Review Studio):** Provides PR/repository input, displays drift analysis state, renders side-by-side documentation diffs, and captures explicit developer approval.
-- **GitHub Service (Octokit):** Fetches PR metadata, diffs, and repository files; commits approved documentation updates.
-- **Change Analysis:** Deterministically parses diffs, identifies API-related source files, and extracts parameters and handlers.
-- **Gemini Engine:** Performs semantic drift detection, identifies behavioral mismatches between code and docs, and explains why documentation is stale.
-- **SkillPatch `api-documentation`:** Owns structured documentation update drafting and formatting rules (Markdown API tables, response types, example request snippets).
-- **Review Layer:** Enforces explicit human-in-the-loop validation before any repository changes are pushed.
-
-### MVP Technology Stack
-
-- **Framework:** Next.js (TypeScript)
-- **Styling:** Tailwind CSS
-- **GitHub SDK:** `@octokit/rest`
-- **Runtime AI Provider:** Gemini (using `GEMINI_API_KEY` from environment variables)
-- **Documentation Generator:** Installed SkillPatch `api-documentation` skill (`.latentcode/skills/api-documentation`)
-
-### Environment Setup
-
-Copy `.env.example` to `.env.local` and populate required keys:
-```bash
-cp .env.example .env.local
+    D --> UI
+    DG --> UI
 ```
-- `GEMINI_API_KEY`: Required server-side API key for Gemini drift detection.
-- `GITHUB_TOKEN`: Optional for public repositories; recommended for higher API rate limits and private repository access.
-
-### Architecture Boundaries (Explicitly Out of Scope)
-
-To ensure a reliable, high-impact MVP within the BuildSprint, the following are explicitly out of scope:
-- Vector databases and complex RAG infrastructure
-- Webhook servers and background worker queues
-- Complex multi-tenant OAuth organization management
-- Automatic background auto-committing without human approval
 
 ---
 
-## What Exists Today
+## Key Design Decisions
 
-The project is currently in its initial setup phase. No application features, backend services, or user interfaces have been implemented yet.
-
-Current state of the repository:
-- `README.md` (this living project context and documentation file)
-- `.gitignore` (standard repository exclusion rules)
-
-The application itself has not yet been implemented.
+- **Deterministic Extraction over AI Guessing:** Route paths, HTTP methods (`GET`, `POST`, `PUT`, `DELETE`), path parameters (`:id`), query parameters (`req.query`), and status codes (`200`, `404`) are parsed using strict regular expressions without LLMs.
+- **Deterministic Target File Resolution:** Existing documentation files (`docs/api.md`, `README.md`) are matched using heading and route context, ensuring generated updates target the correct file rather than inventing arbitrary filenames.
+- **Evidence-Grounded Drift Detection:** Gemini evaluates semantic mismatches using strict zero-hallucination rules, citing concrete code and documentation evidence.
+- **Authoritative SkillPatch Integration:** Documentation formatting rules are loaded dynamically from the repository's installed `.latentcode/skills/api-documentation/SKILL.md`.
+- **Automatic Model Fallback Router:** Gemini requests route through a priority sequence (`gemini-3.7-flash` → `gemini-3.6-flash` → `gemini-3.5-flash-lite`), automatically handling rate limits (429) or model unavailability.
+- **SHA Concurrency & Branch Safety:** Sync commits target the PR's HEAD branch specifically and verify file SHAs to prevent overwriting concurrent changes on GitHub.
 
 ---
 
-## Current Status
+## Features
 
-- **Repository setup:** complete
-- **GitHub repository:** connected
-- **Initial commit:** complete
-- **LatentCode:** connected/active
-- **SkillPatch:** connected and verified
-- **SkillPatch project-level installation:** complete (`api-documentation` installed at `.latentcode/skills/api-documentation`)
-- **SkillPatch runtime invocation:** complete (invoked via `src/lib/doc-generator/` to draft Markdown updates)
-- **Product Architecture & Tech Stack:** complete (Next.js, Octokit, Gemini, SkillPatch)
-- **Application implementation:** started (Next.js 15, TypeScript, Tailwind CSS application foundation scaffolded and verified)
+- **GitHub PR Ingestion:** Retrieves PR metadata, changed files, and patch diffs via Octokit.
+- **Multi-Framework Route Parsing:** Supports Express, Koa, FastAPI, NestJS, and Next.js App Router handlers.
+- **Markdown Context Collection:** Parses headings (`#`, `##`, `###`) and extracts relevant documentation sections.
+- **Semantic Drift Diagnosis:** Categorizes findings as `CONFIRMED_DRIFT`, `NO_DRIFT`, or `UNCERTAIN` with severity levels.
+- **Progressive Review Studio:** Side-by-side comparison studio displaying current docs vs SkillPatch proposal.
+- **One-Click GitHub Sync:** Commits approved documentation updates directly to the GitHub PR branch.
+
+---
+
+## Tech Stack
+
+- **Framework:** Next.js 15 (App Router, TypeScript)
+- **Styling:** Tailwind CSS
+- **GitHub Integration:** `@octokit/rest`
+- **Runtime AI Provider:** `@google/genai` (Gemini API)
+- **Skill Engine:** [SkillPatch `api-documentation`](.latentcode/skills/api-documentation/SKILL.md)
+- **Testing:** Vitest (71 unit tests)
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+Node.js 18+ and npm installed.
+
+### Installation
+
+1. Clone the repository and install dependencies:
+   ```bash
+   git clone https://github.com/toufiqfarhan0/api-sync.git
+   cd api-sync
+   npm install
+   ```
+
+2. Configure environment variables:
+   ```bash
+   cp .env.example .env.local
+   ```
+
+3. Add your Gemini API key in `.env.local`:
+   ```env
+   GEMINI_API_KEY=your_gemini_api_key_here
+   GITHUB_TOKEN=optional_github_pat
+   ```
+
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+---
+
+## Environment Variables
+
+| Variable | Required | Description |
+| :--- | :---: | :--- |
+| `GEMINI_API_KEY` | **Yes** | Server-side key for Gemini drift detection & SkillPatch generation. |
+| `GITHUB_TOKEN` | Optional | GitHub Personal Access Token for higher rate limits and private repo write access. |
+
+See [.env.example](.env.example) for template configuration.
+
+---
+
+## Example Workflow
+
+1. Paste a GitHub PR URL (e.g. `https://github.com/owner/repo/pull/12`) into SyncGuard.
+2. Click **Analyze Drift**. SyncGuard extracts route changes, matches docs, and diagnoses drift in ~2 seconds.
+3. Review the flagged route modifications and Gemini's evidence-based explanation.
+4. Click **Generate Documentation Update** to trigger SkillPatch structured doc generation.
+5. Inspect the current documentation snippet vs proposed Markdown update side-by-side.
+6. Click **Approve & Sync to GitHub**. SyncGuard commits the approved fix directly to the PR branch.
+
+---
+
+## Safety & Reliability
+
+- **No Unsolicited Writes:** GitHub commits occur ONLY after explicit developer approval.
+- **Branch Protection:** Sync commits target the PR's HEAD branch (`head.ref`), preserving `main`.
+- **Path Traversal Guard:** Input file paths are sanitized to prevent writing outside repository boundaries.
+- **Server-Side Secret Isolation:** `GEMINI_API_KEY` and `GITHUB_TOKEN` are executed strictly server-side and never exposed to the client.
+
+---
+
+## Project Structure
+
+```text
+api-sync/
+├── .latentcode/skills/api-documentation/  # Installed SkillPatch skill
+├── src/
+│   ├── app/                               # Next.js App Router & API routes
+│   │   ├── api/analyze/                   # Stage 1: Ingestion & Drift Analysis
+│   │   ├── api/generate/                  # Stage 2: SkillPatch Doc Generation
+│   │   └── api/sync/                      # Stage 3: GitHub PR Commit Sync
+│   └── lib/
+│       ├── api-parser/                    # Deterministic route & patch parser
+│       ├── doc-collector/                 # Markdown section extraction
+│       ├── doc-generator/                 # SkillPatch loader & doc engine
+│       ├── drift-engine/                  # Gemini semantic drift analyzer
+│       ├── gemini/                        # Shared Gemini Model Router & Fallback
+│       └── github/                        # Octokit PR retrieval & commit service
+├── .env.example
+├── README.md
+└── context.md
+```
 
 ---
 
 ## BuildSprint 2026
 
-Project created for **BuildSprint 2026** by team **LatentForce.ai**.
-
-Official BuildSprint Rules & Constraints:
-- 48-hour build sprint
-- Build window: 28 Aug 2026, 6:00 PM IST to 30 Aug 2026, 6:00 PM IST
-- Projects must be built during the official window
-- Pre-built projects are not eligible
-- LatentCode is the only AI coding harness allowed for writing submission code
-- Normal Git/GitHub, package managers, APIs, databases, frameworks, etc. are allowed
-- Submission requires the GitHub project link
-- Demo video maximum: 2 minutes
-- Build in Public link is part of submission
-- LatentCode session transcript is required
-- Team members who write code with LatentCode need their own exported transcript
-- SkillPatch category requires at least one SkillPatch skill to be used and declared
+Built for **BuildSprint 2026** by team **LatentForce.ai** using **LatentCode** as the AI coding harness and **SkillPatch** for standardized documentation generation.
 
 ---
 
-## Judging Strategy
+## Navigation & Repository Links
 
-### Official Judging Criteria & Weights
-- **Idea & Innovation:** 30%
-- **Execution:** 30%
-- **Usefulness & Impact:** 25%
-- **Presentation & Demo:** 10%
-- **Build in Public:** 5%
-
-### Our Project Alignment Strategy
-*Official criteria define how projects are evaluated; our strategy outlines how we focus our build efforts.*
-- **Idea & Innovation (30%) & Usefulness & Impact (25%):** Focus on solving the universal developer problem of documentation drift through intelligent, automated change detection and review workflows.
-- **Execution (30%):** Build a working, verified core product within the sprint window using small, incremental development steps rather than unverified complex scope.
-- **Presentation & Demo (10%) & Build in Public (5%):** Produce a concise 2-minute demonstration showing a clear problem-solution flow, accompanied by public build updates.
-
----
-
-## SkillPatch
-
-- SkillPatch is connected to our LatentCode environment.
-- **Installed Skill:** `api-documentation` (slug: `api-documentation`)
-  - **Location:** `.latentcode/skills/api-documentation/SKILL.md`
-  - **Purpose:** Generates comprehensive, structured API documentation (Markdown, OpenAPI 3.0 YAML, Postman JSON, HTML) from route/controller source code, specs, or endpoint definitions.
-  - **Workflow Role:** Owns Stage 4 (Update Generation) in the API-Sync AI pipeline by formatting code/API changes into standard documentation formats.
-  - **What It Does NOT Do:** It does not perform Git repository monitoring, code diffing, drift detection, application UI rendering, database persistence, or GitHub PR management.
-  - **Integration Status:** Installed and actively invoked at runtime (`src/lib/doc-generator/`) via server-side loader `loadApiDocumentationSkill()`.
-- The skill will be declared in the final submission to count for the SkillPatch category according to the rulebook.
-
----
-
-## Team Workflow
-
-This repository will be developed by two teammates under team **LatentForce.ai**.
-
-Team Principles:
-- Use LatentCode as the AI coding harness for implementation.
-- Work in small, verifiable steps.
-- One major task at a time.
-- Review the current repository state before making changes.
-- Do not fabricate implementation status.
-- Keep README documentation synchronized with meaningful project changes.
-- After a meaningful completed milestone, commit and push.
-- Coordinate before modifying areas currently being worked on by the other teammate.
-- Avoid unnecessary rewrites of each other's work.
-
----
-
-## Development Rules
-
-- Keep the main branch stable.
-- Do not commit secrets/API keys.
-- Do not commit SkillPatch or LatentCode credentials.
-- Do not claim an integration is complete until it is verified.
-- Test important functionality before calling a milestone complete.
-- Keep commits meaningful and descriptive.
-- Keep the README current as the project evolves.
-
----
-
-## Project Milestones
-
-Initial Roadmap:
-- [x] Initial repository setup — complete
-- [x] SkillPatch selection (`api-documentation`) — complete
-- [x] SkillPatch installation (`.latentcode/skills/api-documentation`) — complete
-- [x] Product architecture & tech stack selection — complete
-- [x] Next.js application scaffold & setup — complete
-- [x] GitHub PR Ingestion Service (`@octokit/rest`) — complete
-- [x] Deterministic route/controller code diff parser — complete
-- [x] Documentation Context Collector — complete
-- [x] Gemini semantic drift engine — complete
-- [x] SkillPatch doc generator engine (`src/lib/doc-generator/`) — complete
-- [x] Gemini Model Router & Fallback Engine (`src/lib/gemini/`) — complete
-- [x] Review Studio UI (`src/app/page.tsx`) — complete
-- [x] GitHub documentation sync commit handler (`src/app/api/sync/route.ts`) — complete
-
-*(Note: This is an initial roadmap and will be adapted as real development progresses.)*
-
----
-
-## Change Log / Build Log
-
-- **Initial Setup:**
-  - Initial repository established
-  - Initial commit created and pushed
-  - SkillPatch connection verified
-- **SkillPatch Integration:**
-  - Evaluated and selected `api-documentation` SkillPatch skill
-  - Installed `api-documentation` into `.latentcode/skills/api-documentation`
-  - Verified installation and skill loading in LatentCode
-- **Product Architecture & Tech Stack:**
-  - Finalized MVP architecture: Next.js + Octokit + Gemini + SkillPatch
-  - Defined end-to-end PR-driven workflow and side-by-side Review Studio
-- **Application Scaffold:**
-  - Created Next.js 15 App Router foundation with TypeScript and Tailwind CSS
-  - Configured ESLint and PostCSS
-  - Verified `npm run lint`, `npm run build`, and `next dev` local server execution
-- **GitHub PR Ingestion Service:**
-  - Added `@octokit/rest` dependency
-  - Implemented typed `fetchPullRequestData` service in `src/lib/github/`
-  - Retrieves PR metadata, changed file list, status, additions/deletions, and raw patch/diff content
-  - Normalizes responses into clean internal TypeScript structures (`NormalizedPullRequestData`)
-  - Added unit test suite with 100% test coverage using Vitest
-  - Does NOT yet perform route parsing, drift detection, or GitHub writes/commits
-- **Deterministic API Change Parser:**
-  - Implemented zero-AI deterministic parser in `src/lib/api-parser/`
-  - Parses Express/Koa/FastAPI routes (`router.get`, `router.post`) and Next.js App Router handlers (`export function GET`)
-  - Extracts HTTP methods, route paths, path parameters (`:id`), query parameters (`req.query`), request body fields (`req.body`), and response status codes (`res.status`)
-  - Identifies change types (`ADDED`, `MODIFIED`, `REMOVED`) from Git patch diffs
-  - Added 12 unit tests verifying deterministic extraction and zero hallucination
-  - Does NOT use Gemini or AI models; pure deterministic code only
-- **Documentation Context Collector:**
-  - Implemented deterministic documentation section collector in `src/lib/doc-collector/`
-  - Inspects `README.md` and `docs/**/*.md` files to extract sections matching parsed `ApiChange` items
-  - Parses Markdown headings (`#`, `##`, `###`) and performs deterministic matching on paths, HTTP methods, and route keywords
-  - Reports match confidence (`HIGH`, `MEDIUM`, `LOW`) and match reason (`METHOD_AND_PATH`, `EXACT_PATH`, `HEADING_MATCH`, `ROUTE_KEYWORD`)
-  - Added 8 unit tests covering section parsing, exact/partial matching, and unmatched change tracking
-- **Gemini Semantic Drift Engine & Model Router:**
-  - Added `@google/genai` dependency and centralized model router in `src/lib/gemini/`
-  - Uses automatic fallback model sequence (`gemini-3.7-flash` → `gemini-3.6-flash` → `gemini-3.5-flash-lite`) to handle HTTP 429 rate limits, model-specific 404s, and 5xx errors
-  - Obsolete `gemini-2.0-flash` model configuration fully removed
-  - Returns strongly-typed `DriftAnalysisResult` and `GeminiRouterMetadata` (`modelUsed`, `fallbackUsed`, `attemptedModels`)
-  - Shared by both Gemini drift engine and SkillPatch documentation generator
-  - Enforces server-side secret management (`GEMINI_API_KEY` from environment variables)
-  - Added 18 unit tests covering error classification, automatic model fallback, JSON validation, and mock generation
-- **SkillPatch Documentation Generator Engine:**
-  - Implemented server-side loader `loadApiDocumentationSkill()` in `src/lib/doc-generator/` to dynamically consume installed `.latentcode/skills/api-documentation/SKILL.md` instructions
-  - Integrates Gemini runtime provider to generate structured Markdown documentation updates resolving detected drift
-  - Returns strongly-typed `DocumentationGenerationResult` with target file, formatted Markdown snippet, summary, and confidence levels
-  - Added 7 unit tests verifying SkillPatch instruction inclusion, early exit on `NO_DRIFT`, JSON parsing, and mock generation
-- **Review Studio UI & Progressive Pipeline:**
-  - Implemented progressive two-stage Review Studio UI (`src/app/page.tsx`) and endpoints `POST /api/analyze` (`src/app/api/analyze/route.ts`) and `POST /api/generate` (`src/app/api/generate/route.ts`)
-  - Stage 1 (`/api/analyze`): Executes GitHub PR ingestion, code parsing, doc context collection, and Gemini drift analysis (~15-20s response time).
-  - Stage 2 (`/api/generate`): Triggered explicitly by the developer on confirmed drift to generate SkillPatch documentation updates (~20-25s response time).
-  - Significantly reduces perceived latency and eliminates unnecessary LLM calls when documentation is already up to date.
-  - Displays PR summary bar, detected API routes grid, drift analysis status/evidence, and side-by-side documentation studio.
-  - Added unit test suites for `/api/analyze` and `/api/generate` route handlers.
-- **GitHub Documentation Sync Service:**
-  - Implemented `commitDocumentationFile` in `src/lib/github/` and server-side endpoint `POST /api/sync` (`src/app/api/sync/route.ts`)
-  - Commits approved documentation updates directly to the target PR's HEAD branch on explicit developer approval
-  - Enforces path-traversal security checks, HEAD branch resolution, and SHA/concurrency conflict detection
-  - Added unit test suite (`src/lib/github/__tests__/sync.test.ts`) covering branch protection, SHA conflict mapping, 401/403 errors, and path validation
-
-*(Future entries will be added as real milestones are completed.)*
-
----
-
-## Submission Checklist
-
-Official Submission Checklist:
-- [ ] Public/judge-accessible GitHub repository
-- [ ] Working project
-- [ ] Demo video <= 2 minutes
-- [ ] Build in Public post/link
-- [ ] Exported LatentCode transcript(s)
-- [ ] Google Drive folder containing demo video and required transcripts
-- [ ] Final submission before the deadline
-- [ ] SkillPatch skill declared if used
-
----
-
-## Repository Information
-
-- **GitHub repository:** https://github.com/toufiqfarhan0/api-sync
-- **Default branch:** main
-
----
-
-## Documentation Policy
-
-This README is a living source of project context. When implementation, architecture, dependencies, integrations, or major milestones change, update this document as part of the same development step whenever appropriate.
-
----
-
-## Current Build Principle
-
-"Build the smallest real, useful version first; verify it; then expand."
-
-"API-Sync AI uses deterministic code and GitHub processing for reliable change extraction, Gemini for semantic reasoning, and SkillPatch for structured documentation generation, with explicit human approval before synchronization."
+- **GitHub Repository:** [https://github.com/toufiqfarhan0/api-sync](https://github.com/toufiqfarhan0/api-sync)
+- **Installed SkillPatch Skill:** [.latentcode/skills/api-documentation/SKILL.md](.latentcode/skills/api-documentation/SKILL.md)
+- **Environment Template:** [.env.example](.env.example)
+- **Source Code:** [src/](src/)
+- **Internal Context:** [context.md](context.md)
