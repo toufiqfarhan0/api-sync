@@ -210,11 +210,8 @@ Initial Roadmap:
 - [x] Gemini semantic drift engine — complete
 - [x] SkillPatch doc generator engine (`src/lib/doc-generator/`) — complete
 - [x] Gemini Model Router & Fallback Engine (`src/lib/gemini/`) — complete
-- [ ] Review Studio UI — pending
-- [ ] Review experience — pending
-- [ ] Testing and reliability — pending
-- [ ] Demo preparation — pending
-- [ ] Final submission preparation — pending
+- [x] Review Studio UI (`src/app/page.tsx`) — complete
+- [ ] GitHub documentation sync commit handler — pending
 
 *(Note: This is an initial roadmap and will be adapted as real development progresses.)*
 
@@ -270,7 +267,12 @@ Initial Roadmap:
   - Integrates Gemini runtime provider to generate structured Markdown documentation updates resolving detected drift
   - Returns strongly-typed `DocumentationGenerationResult` with target file, formatted Markdown snippet, summary, and confidence levels
   - Added 7 unit tests verifying SkillPatch instruction inclusion, early exit on `NO_DRIFT`, JSON parsing, and mock generation
-  - Review Studio UI and GitHub PR commit sync remain pending
+- **Review Studio UI:**
+  - Implemented full-stack Review Studio UI (`src/app/page.tsx`) and analysis API route (`src/app/api/analyze/route.ts`)
+  - Orchestrates GitHub PR ingestion, deterministic code parsing, context collection, Gemini drift detection, and SkillPatch generation
+  - Renders PR metadata summary, detected API changes, drift status & explanation, and side-by-side documentation comparison
+  - Provides `Approve Documentation Update` and `Reject` developer review controls (approval sets local state for sync; direct GitHub commit step is pending next milestone)
+  - Added unit test suite for input URL parsing and route helpers
 
 *(Future entries will be added as real milestones are completed.)*
 
