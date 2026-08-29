@@ -20,7 +20,7 @@ describe("SkillPatch Documentation Generator Engine", () => {
 
   const sampleDocContext: DocumentationContext = {
     apiChange: sampleApiChange,
-    matchedFile: "README.md",
+    matchedFile: "docs/api.md",
     matchedSections: [
       {
         headingTitle: "POST /api/v1/users",
@@ -37,7 +37,7 @@ describe("SkillPatch Documentation Generator Engine", () => {
     summary: "Missing confirmPassword field and 400 response code in documentation.",
     explanation: "Code diff adds confirmPassword field and 400 response code.",
     affectedApiChangesCount: 1,
-    affectedDocFiles: ["README.md"],
+    affectedDocFiles: ["docs/api.md"],
     missingInformation: ["confirmPassword field", "400 Bad Request status code"],
     outdatedInformation: [],
     confidence: "HIGH",
@@ -61,17 +61,19 @@ describe("SkillPatch Documentation Generator Engine", () => {
       }
     });
 
-    it("verifies prompt includes exact loaded SkillPatch instructions", () => {
+    it("verifies prompt includes exact loaded SkillPatch instructions and target file", () => {
       const skillContent = loadApiDocumentationSkill();
       const prompt = buildDocGeneratorPrompt(
         [sampleApiChange],
         [sampleDocContext],
         sampleDriftResult,
-        skillContent
+        skillContent,
+        "docs/api.md"
       );
 
       expect(prompt).toContain(skillContent);
       expect(prompt).toContain(".latentcode/skills/api-documentation/SKILL.md");
+      expect(prompt).toContain("docs/api.md");
     });
   });
 
@@ -91,9 +93,10 @@ describe("SkillPatch Documentation Generator Engine", () => {
       expect(res.success).toBe(true);
       expect(res.generatedContent).toBe("");
       expect(res.summary).toContain("No documentation update generated");
+      expect(res.targetFile).toBe("docs/api.md");
     });
 
-    it("generates structured Markdown documentation update using mock Gemini client", async () => {
+    it("generates structured Markdown documentation update using mock Gemini client and preserves matched target file", async () => {
       let capturedPrompt = "";
       const mockClient = {
         generateContent: async (args: { contents: string[] }) => {
@@ -103,7 +106,7 @@ describe("SkillPatch Documentation Generator Engine", () => {
               text: JSON.stringify({
                 success: true,
                 format: "markdown",
-                targetFile: "README.md",
+                targetFile: "random-hallucinated-file.md",
                 generatedContent: "### POST /api/v1/users\n\n| Parameter | Type | Required |\n| --- | --- | --- |\n| email | string | Yes |\n| confirmPassword | string | Yes |",
                 summary: "Updated request body fields for POST /api/v1/users.",
                 warnings: [],
@@ -125,28 +128,28 @@ describe("SkillPatch Documentation Generator Engine", () => {
 
       expect(capturedPrompt).toContain("api-documentation");
       expect(result.success).toBe(true);
-      expect(result.targetFile).toBe("README.md");
+      expect(result.targetFile).toBe("docs/api.md"); // Enforced docs/api.md over LLM output
       expect(result.generatedContent).toContain("confirmPassword");
     });
 
-    it("validates raw JSON generation responses correctly", () => {
+    it("validates raw JSON generation responses correctly and enforces target file", () => {
       const raw = JSON.stringify({
         success: true,
         format: "markdown",
-        targetFile: "docs/api.md",
+        targetFile: "other.md",
         generatedContent: "## Endpoint Updated",
         summary: "Updated docs",
         warnings: ["Field inferred"],
         confidence: "MEDIUM",
       });
 
-      const parsed = validateAndParseGenerationResult(raw);
+      const parsed = validateAndParseGenerationResult(raw, "docs/api.md");
       expect(parsed.targetFile).toBe("docs/api.md");
       expect(parsed.warnings).toContain("Field inferred");
     });
 
     it("throws MALFORMED_OUTPUT on invalid JSON", () => {
-      expect(() => validateAndParseGenerationResult("Invalid JSON")).toThrowError(DocGeneratorError);
+      expect(() => validateAndParseGenerationResult("Invalid JSON", "README.md")).toThrowError(DocGeneratorError);
     });
   });
 });

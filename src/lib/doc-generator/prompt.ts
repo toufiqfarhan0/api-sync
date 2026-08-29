@@ -6,7 +6,8 @@ export function buildDocGeneratorPrompt(
   apiChanges: ApiChange[],
   docContexts: DocumentationContext[],
   driftAnalysis: DriftAnalysisResult,
-  skillInstructions: string
+  skillInstructions: string,
+  targetFile: string
 ): string {
   const formattedChanges = apiChanges.map((change, idx) => `
 --- API CHANGE #${idx + 1} ---
@@ -49,15 +50,18 @@ ${formattedChanges || "No code changes provided."}
 === EXISTING DOCUMENTATION CONTEXT ===
 ${formattedContexts || "No existing documentation found."}
 
+TARGET DOCUMENTATION FILE TO UPDATE:
+${targetFile}
+
 TASK:
-Generate a targeted Markdown documentation update section that resolves the detected documentation drift according to the SkillPatch formatting instructions.
+Generate a targeted Markdown documentation update section for "${targetFile}" that resolves the detected documentation drift according to the SkillPatch formatting instructions.
 
 REQUIRED OUTPUT SCHEMA (JSON):
 Respond with a JSON object matching this schema exactly:
 {
   "success": true,
   "format": "markdown",
-  "targetFile": "README.md" (or primary affected doc file name),
+  "targetFile": "${targetFile}",
   "generatedContent": "Precise, formatted Markdown documentation snippet or section containing endpoint table, parameter descriptions, request/response models, and curl example",
   "summary": "One sentence summary of generated documentation updates",
   "warnings": ["Any warnings or uncertainties about inferred details"],

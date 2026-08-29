@@ -1,9 +1,13 @@
 import { CustomGeminiClient, generateWithGemini } from "../gemini";
 import { buildDocGeneratorPrompt } from "./prompt";
 import { DocGeneratorError, loadApiDocumentationSkill } from "./skillLoader";
+import { resolveTargetDocFile } from "./targetResolver";
 import { DocGeneratorInput, DocumentationGenerationResult } from "./types";
 
-export function validateAndParseGenerationResult(rawJson: string): DocumentationGenerationResult {
+export function validateAndParseGenerationResult(
+  rawJson: string,
+  enforcedTargetFile: string
+): DocumentationGenerationResult {
   if (!rawJson || !rawJson.trim()) {
     throw new DocGeneratorError("Gemini returned an empty response.", "MALFORMED_OUTPUT");
   }
@@ -25,7 +29,7 @@ export function validateAndParseGenerationResult(rawJson: string): Documentation
   return {
     success: typeof res.success === "boolean" ? res.success : true,
     format: "markdown",
-    targetFile: (res.targetFile as string) || "README.md",
+    targetFile: enforcedTargetFile, // Deterministically enforced target file
     generatedContent: (res.generatedContent as string) || "",
     summary: (res.summary as string) || "Generated documentation update.",
     warnings: Array.isArray(res.warnings) ? (res.warnings as string[]) : [],
@@ -38,17 +42,21 @@ export async function generateDocUpdate(
   options?: {
     apiKey?: string;
     baseDir?: string;
+    overrideTargetFile?: string;
     clientOverride?: CustomGeminiClient;
   }
 ): Promise<DocumentationGenerationResult> {
   const { apiChanges, docContexts, driftAnalysis } = input;
+
+  // Deterministically resolve target doc file from matching context
+  const targetFile = options?.overrideTargetFile || resolveTargetDocFile(docContexts);
 
   // If no drift was detected, return early
   if (driftAnalysis.status === "NO_DRIFT") {
     return {
       success: true,
       format: "markdown",
-      targetFile: docContexts[0]?.matchedFile || "README.md",
+      targetFile,
       generatedContent: "",
       summary: "No documentation update generated because no documentation drift was detected.",
       warnings: [],
@@ -58,7 +66,7 @@ export async function generateDocUpdate(
 
   // Load authoritative SkillPatch instructions from disk
   const skillInstructions = loadApiDocumentationSkill(options?.baseDir);
-  const prompt = buildDocGeneratorPrompt(apiChanges, docContexts, driftAnalysis, skillInstructions);
+  const prompt = buildDocGeneratorPrompt(apiChanges, docContexts, driftAnalysis, skillInstructions, targetFile);
 
   try {
     const routerResult = await generateWithGemini(prompt, {
@@ -67,7 +75,7 @@ export async function generateDocUpdate(
       clientOverride: options?.clientOverride,
     });
 
-    const parsedResult = validateAndParseGenerationResult(routerResult.responseText);
+    const parsedResult = validateAndParseGenerationResult(routerResult.responseText, targetFile);
     parsedResult.modelMetadata = routerResult.metadata;
     return parsedResult;
   } catch (err: unknown) {
