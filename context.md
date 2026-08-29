@@ -91,8 +91,9 @@ Official Competition Rules & Constraints:
 11. [x] GitHub PR Ingestion Service implemented (`src/lib/github/`) with Octokit and 100% unit test coverage.
 12. [x] Deterministic API Change Parser implemented (`src/lib/api-parser/`) with 12 unit tests and 0 AI dependencies.
 13. [x] Documentation Context Collector implemented (`src/lib/doc-collector/`) with 8 unit tests for Markdown section extraction.
-14. [x] Gemini Semantic Drift Engine implemented (`src/lib/drift-engine/`) using `gemini-2.0-flash` with 10 unit tests.
+14. [x] Gemini Semantic Drift Engine implemented (`src/lib/drift-engine/`) using `gemini-3.7-flash` with 10 unit tests.
 15. [x] SkillPatch Documentation Generator Engine implemented (`src/lib/doc-generator/`) consuming `.latentcode/skills/api-documentation/SKILL.md` with 7 unit tests.
+16. [x] Shared Gemini Model Router & Automatic Fallback Engine implemented (`src/lib/gemini/`) supporting `gemini-3.7-flash` → `gemini-3.6-flash` → `gemini-3.5-flash-lite` fallback sequence.
 
 ### Pending Milestones
 1. [ ] Implement interactive Review Studio UI with side-by-side diffs.
@@ -164,7 +165,7 @@ Official Competition Rules & Constraints:
 ---
 
 ## Current State
-SkillPatch Documentation Generator Engine implemented (`src/lib/doc-generator/`) consuming `.latentcode/skills/api-documentation/SKILL.md` via server-side loader `loadApiDocumentationSkill()`. Generates structured Markdown documentation updates for detected drift. Passes 7 unit tests via Vitest (45 total unit tests in project).
+Shared Gemini Model Router & Automatic Fallback Engine implemented (`src/lib/gemini/`). Centralizes model sequence (`gemini-3.7-flash` → `gemini-3.6-flash` → `gemini-3.5-flash-lite`) and handles HTTP 429 rate limits, model 404s, and 5xx errors with automatic fallback. Shared by both `src/lib/drift-engine/` and `src/lib/doc-generator/`. All 58 unit tests pass via Vitest.
 
 ## Next Step
-Implement the interactive Side-by-Side Review Studio UI (`src/app/`) to display PR diffs, detected drift explanations, and proposed documentation updates with approval controls.
+Implement the interactive Side-by-Side Review Studio UI (`src/app/`) to display PR diffs, detected drift explanations, proposed documentation updates, and model metadata with approval controls.

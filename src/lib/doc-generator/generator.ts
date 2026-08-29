@@ -1,5 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
-import { CustomGeminiClient, DEFAULT_GEMINI_MODEL } from "../drift-engine/engine";
+import { CustomGeminiClient, generateWithGemini } from "../gemini";
 import { buildDocGeneratorPrompt } from "./prompt";
 import { DocGeneratorError, loadApiDocumentationSkill } from "./skillLoader";
 import { DocGeneratorInput, DocumentationGenerationResult } from "./types";
@@ -38,7 +37,6 @@ export async function generateDocUpdate(
   input: DocGeneratorInput,
   options?: {
     apiKey?: string;
-    model?: string;
     baseDir?: string;
     clientOverride?: CustomGeminiClient;
   }
@@ -60,48 +58,29 @@ export async function generateDocUpdate(
 
   // Load authoritative SkillPatch instructions from disk
   const skillInstructions = loadApiDocumentationSkill(options?.baseDir);
-
-  const apiKey = options?.apiKey || process.env.GEMINI_API_KEY;
-  const model = options?.model || DEFAULT_GEMINI_MODEL;
-
-  if (!apiKey && !options?.clientOverride) {
-    throw new DocGeneratorError(
-      "GEMINI_API_KEY environment variable is missing. Server-side Gemini credential is required.",
-      "MISSING_API_KEY"
-    );
-  }
-
   const prompt = buildDocGeneratorPrompt(apiChanges, docContexts, driftAnalysis, skillInstructions);
 
   try {
-    let responseText = "";
+    const routerResult = await generateWithGemini(prompt, {
+      apiKey: options?.apiKey,
+      responseMimeType: "application/json",
+      clientOverride: options?.clientOverride,
+    });
 
-    if (options?.clientOverride) {
-      const res = await options.clientOverride.generateContent({
-        model,
-        contents: [prompt],
-        config: {
-          responseMimeType: "application/json",
-        },
-      });
-      responseText = res.response.text;
-    } else {
-      const ai = new GoogleGenAI({ apiKey });
-      const response = await ai.models.generateContent({
-        model,
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-        },
-      });
-      responseText = response.text || "";
-    }
-
-    return validateAndParseGenerationResult(responseText);
+    const parsedResult = validateAndParseGenerationResult(routerResult.responseText);
+    parsedResult.modelMetadata = routerResult.metadata;
+    return parsedResult;
   } catch (err: unknown) {
     if (err instanceof DocGeneratorError) throw err;
 
-    const error = err as { message?: string };
+    const error = err as { code?: string; message?: string };
+    if (error.code === "MISSING_API_KEY") {
+      throw new DocGeneratorError(
+        "GEMINI_API_KEY environment variable is missing. Server-side Gemini credential is required.",
+        "MISSING_API_KEY"
+      );
+    }
+
     throw new DocGeneratorError(
       `Documentation generation failed: ${error.message || "Unknown error"}`,
       "GENERATION_FAILED"
