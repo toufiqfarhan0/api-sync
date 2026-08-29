@@ -87,18 +87,18 @@ Official Competition Rules & Constraints:
 7. [x] `api-documentation` SkillPatch skill installed at `.latentcode/skills/api-documentation`.
 8. [x] Product architecture finalized (PR-driven workflow, Review Studio, Gemini drift engine, SkillPatch doc generator).
 9. [x] Technology stack selected (Next.js, TypeScript, Tailwind CSS, Octokit, Gemini SDK, SkillPatch).
+10. [x] Next.js 15 App Router application scaffolded and verified with TypeScript, Tailwind CSS, and ESLint.
 
 ### Pending Milestones
-1. [ ] Implement core API-Sync workflow & Next.js project initialization.
-2. [ ] Implement GitHub service (Octokit PR diff retrieval & file fetching).
-3. [ ] Implement deterministic route change parser.
-4. [ ] Integrate Gemini runtime provider for semantic drift detection.
-5. [ ] Integrate SkillPatch `api-documentation` prompt engine for doc generation.
-6. [ ] Implement interactive Review Studio UI with side-by-side diffs.
-7. [ ] Implement GitHub sync commit action.
-8. [ ] End-to-end testing and validation.
-9. [ ] Demo video & Build in Public preparation.
-10. [ ] Final submission preparation (transcripts, Drive folder, submission form).
+1. [ ] Implement GitHub service (Octokit PR diff retrieval & file fetching).
+2. [ ] Implement deterministic route change parser.
+3. [ ] Integrate Gemini runtime provider for semantic drift detection.
+4. [ ] Integrate SkillPatch `api-documentation` prompt engine for doc generation.
+5. [ ] Implement interactive Review Studio UI with side-by-side diffs.
+6. [ ] Implement GitHub sync commit action.
+7. [ ] End-to-end testing and validation.
+8. [ ] Demo video & Build in Public preparation.
+9. [ ] Final submission preparation (transcripts, Drive folder, submission form).
 
 ---
 
@@ -163,7 +163,7 @@ Official Competition Rules & Constraints:
 ---
 
 ## Current State
-Repository setup is complete. SkillPatch connectivity is verified. The `api-documentation` skill has been evaluated and installed at `.latentcode/skills/api-documentation`. Product implementation has not yet started.
+Next.js 15 App Router application scaffolded and verified with TypeScript, Tailwind CSS, and ESLint (`npm run lint`, `npm run build`, and `next dev` verified). SkillPatch skill installed at `.latentcode/skills/api-documentation`. Product feature logic implementation has not yet started.
 
 ## Next Step
-Proceed with Next.js project initialization and core API-Sync implementation using Octokit, Gemini, and the installed `api-documentation` SkillPatch skill.
+Implement the Octokit GitHub Service module for retrieving PR metadata, file diffs, and repository contents.
