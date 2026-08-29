@@ -89,16 +89,16 @@ Official Competition Rules & Constraints:
 9. [x] Technology stack selected (Next.js, TypeScript, Tailwind CSS, Octokit, Gemini SDK, SkillPatch).
 10. [x] Next.js 15 App Router application scaffolded and verified with TypeScript, Tailwind CSS, and ESLint.
 11. [x] GitHub PR Ingestion Service implemented (`src/lib/github/`) with Octokit and 100% unit test coverage.
+12. [x] Deterministic API Change Parser implemented (`src/lib/api-parser/`) with 12 unit tests and 0 AI dependencies.
 
 ### Pending Milestones
-1. [ ] Implement deterministic route change parser module.
-2. [ ] Integrate Gemini runtime provider for semantic drift detection.
-3. [ ] Integrate SkillPatch `api-documentation` prompt engine for doc generation.
-4. [ ] Implement interactive Review Studio UI with side-by-side diffs.
-5. [ ] Implement GitHub sync commit action.
-6. [ ] End-to-end testing and validation.
-7. [ ] Demo video & Build in Public preparation.
-8. [ ] Final submission preparation (transcripts, Drive folder, submission form).
+1. [ ] Integrate Gemini runtime provider for semantic drift detection.
+2. [ ] Integrate SkillPatch `api-documentation` prompt engine for doc generation.
+3. [ ] Implement interactive Review Studio UI with side-by-side diffs.
+4. [ ] Implement GitHub sync commit action.
+5. [ ] End-to-end testing and validation.
+6. [ ] Demo video & Build in Public preparation.
+7. [ ] Final submission preparation (transcripts, Drive folder, submission form).
 
 ---
 
@@ -163,7 +163,7 @@ Official Competition Rules & Constraints:
 ---
 
 ## Current State
-GitHub PR Ingestion Service implemented (`src/lib/github/`) using Octokit, returning clean normalized data (`NormalizedPullRequestData`) for PR metadata and file patches. Unit test suite passes with 100% coverage via Vitest.
+Deterministic API Change Parser implemented (`src/lib/api-parser/`) without AI or model dependencies. Correctly parses Express/Koa/FastAPI routes and Next.js App Router handlers, extracting HTTP methods, paths, path/query parameters, request body fields, and status codes. Passes 12 unit tests via Vitest.
 
 ## Next Step
-Implement the deterministic route change parser module (`src/lib/parser/`) to extract endpoint paths, methods, and parameters from modified files.
+Integrate the Gemini runtime provider module (`src/lib/gemini/`) to compare extracted API code changes against existing repository documentation files and perform semantic drift detection.
