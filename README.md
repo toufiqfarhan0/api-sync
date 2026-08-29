@@ -61,7 +61,7 @@ The application itself has not yet been implemented.
 - **Initial commit:** complete
 - **LatentCode:** connected/active
 - **SkillPatch:** connected and verified
-- **SkillPatch project-level installation:** not yet done
+- **SkillPatch project-level installation:** complete (`api-documentation` installed at `.latentcode/skills/api-documentation`)
 - **Application implementation:** not started
 
 ---
@@ -106,11 +106,13 @@ Official BuildSprint Rules & Constraints:
 ## SkillPatch
 
 - SkillPatch is connected to our LatentCode environment.
-- We have not selected or installed a project skill yet.
-- We will choose a skill based on actual relevance to API-Sync AI.
-- Any installed skill must be meaningfully used in the product.
-- When a SkillPatch skill is installed, update this README with the skill name, slug, purpose, where it is used, and the relevant implementation status.
-- The skill must be declared in the final submission to count for the SkillPatch category according to the rulebook.
+- **Installed Skill:** `api-documentation` (slug: `api-documentation`)
+  - **Location:** `.latentcode/skills/api-documentation/SKILL.md`
+  - **Purpose:** Generates comprehensive, structured API documentation (Markdown, OpenAPI 3.0 YAML, Postman JSON, HTML) from route/controller source code, specs, or endpoint definitions.
+  - **Workflow Role:** Intended to own Stage 4 (Update Generation) and support Stage 2 (Change Analysis) in the API-Sync AI pipeline by formatting code/API changes into standard documentation formats.
+  - **What It Does NOT Do:** It does not perform Git repository monitoring, code diffing, drift detection, application UI rendering, database persistence, or GitHub PR management.
+  - **Integration Status:** Installed and verified in project repository; not yet invoked in product code (application implementation pending).
+- The skill will be declared in the final submission to count for the SkillPatch category according to the rulebook.
 
 ---
 
@@ -147,8 +149,8 @@ Team Principles:
 
 Initial Roadmap:
 - [x] Initial repository setup — complete
-- [ ] SkillPatch selection — pending
-- [ ] SkillPatch installation/integration — pending
+- [x] SkillPatch selection (`api-documentation`) — complete
+- [x] SkillPatch installation (`.latentcode/skills/api-documentation`) — complete
 - [ ] Product architecture — pending
 - [ ] Core implementation — pending
 - [ ] GitHub integration — pending
@@ -168,8 +170,11 @@ Initial Roadmap:
   - Initial repository established
   - Initial commit created and pushed
   - SkillPatch connection verified
-  - No SkillPatch skill installed yet
-  - No product features implemented yet
+- **SkillPatch Integration:**
+  - Evaluated and selected `api-documentation` SkillPatch skill
+  - Installed `api-documentation` into `.latentcode/skills/api-documentation`
+  - Verified installation and skill loading in LatentCode
+  - Application code implementation not started yet
 
 *(Future entries will be added as real milestones are completed.)*
 

@@ -56,15 +56,16 @@ Official Competition Rules & Constraints:
 - **Secret Management:** Never hardcode or commit API keys or credentials.
 - Specific Gemini SDKs and models will be selected when architecture decisions are finalized.
 
-### SkillPatch Status & Candidate Selection
+### SkillPatch Status & Installed Skill
 - **Status:** SkillPatch is connected to LatentCode (`https://skillpatch.dev`).
 - **`/skillpatch` Availability:** Verified and active.
-- **Project Installation:** *Not yet installed into project directory.*
-- **Selected Skill Candidate:** `api-documentation`
+- **Installed Skill:** `api-documentation` (slug: `api-documentation`)
+  - **Local Path:** `.latentcode/skills/api-documentation/SKILL.md`
   - **Capabilities:** Analyzes route/controller code, OpenAPI YAML/JSON, Postman collections, plain text endpoint lists, gRPC protos, and GraphQL schemas across JS/TS, Python, Java, and C#. Produces structured Markdown, OpenAPI 3.0 YAML, self-contained HTML docs, or Postman JSON.
   - **Verification:** Security score `94/100`, verified `true`, security passed `true`.
   - **What It Does NOT Do:** It does NOT monitor Git repositories, compute code diffs, detect drift, run a web UI, integrate with GitHub PRs, or store database records.
   - **Role:** It acts as a specialized documentation-generation engine *within* our system, while API-Sync AI owns change detection, drift analysis, UI, and review workflows.
+  - **Integration Status:** Installed and verified in repo; application invocation code pending.
 
 ---
 
@@ -83,19 +84,19 @@ Official Competition Rules & Constraints:
 4. [x] SkillPatch connection verified.
 5. [x] `api-documentation` evaluated and selected as recommended SkillPatch skill.
 6. [x] Living README.md and context.md created.
+7. [x] `api-documentation` SkillPatch skill installed at `.latentcode/skills/api-documentation`.
 
 ### Pending Milestones
-1. [ ] Install and integrate `api-documentation` SkillPatch skill.
-2. [ ] Finalize product architecture.
-3. [ ] Decide technology stack based on architecture.
-4. [ ] Implement core API-Sync workflow.
-5. [ ] Integrate Gemini as runtime AI provider.
-6. [ ] Implement documentation synchronization logic.
-7. [ ] Implement developer review/sync experience.
-8. [ ] Integrate GitHub interactions (as defined by final architecture).
-9. [ ] End-to-end testing and validation.
-10. [ ] Demo video & Build in Public preparation.
-11. [ ] Final submission preparation (transcripts, Drive folder, submission form).
+1. [ ] Finalize product architecture.
+2. [ ] Decide technology stack based on architecture.
+3. [ ] Implement core API-Sync workflow.
+4. [ ] Integrate Gemini as runtime AI provider.
+5. [ ] Implement documentation synchronization logic.
+6. [ ] Implement developer review/sync experience.
+7. [ ] Integrate GitHub interactions (as defined by final architecture).
+8. [ ] End-to-end testing and validation.
+9. [ ] Demo video & Build in Public preparation.
+10. [ ] Final submission preparation (transcripts, Drive folder, submission form).
 
 ---
 
@@ -114,7 +115,7 @@ Official Competition Rules & Constraints:
 ---
 
 ## Current State
-Repository setup is complete. SkillPatch connectivity is verified. The `api-documentation` skill has been evaluated and selected but has NOT yet been installed. Product implementation has not yet started.
+Repository setup is complete. SkillPatch connectivity is verified. The `api-documentation` skill has been evaluated and installed at `.latentcode/skills/api-documentation`. Product implementation has not yet started.
 
 ## Next Step
-Install and integrate the selected `api-documentation` SkillPatch skill only after confirming the installation process and expected project structure.
+Finalize product architecture and technology stack, then proceed with core API-Sync implementation using the installed `api-documentation` skill for update generation.
