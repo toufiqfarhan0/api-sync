@@ -72,6 +72,15 @@ API-Sync AI uses a hybrid deterministic and AI-powered architecture designed for
 - **Runtime AI Provider:** Gemini (using `GEMINI_API_KEY` from environment variables)
 - **Documentation Generator:** Installed SkillPatch `api-documentation` skill (`.latentcode/skills/api-documentation`)
 
+### Environment Setup
+
+Copy `.env.example` to `.env.local` and populate required keys:
+```bash
+cp .env.example .env.local
+```
+- `GEMINI_API_KEY`: Required server-side API key for Gemini drift detection.
+- `GITHUB_TOKEN`: Optional for public repositories; recommended for higher API rate limits and private repository access.
+
 ### Architecture Boundaries (Explicitly Out of Scope)
 
 To ensure a reliable, high-impact MVP within the BuildSprint, the following are explicitly out of scope:
