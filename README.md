@@ -111,6 +111,7 @@ The application itself has not yet been implemented.
 - **LatentCode:** connected/active
 - **SkillPatch:** connected and verified
 - **SkillPatch project-level installation:** complete (`api-documentation` installed at `.latentcode/skills/api-documentation`)
+- **SkillPatch runtime invocation:** complete (invoked via `src/lib/doc-generator/` to draft Markdown updates)
 - **Product Architecture & Tech Stack:** complete (Next.js, Octokit, Gemini, SkillPatch)
 - **Application implementation:** started (Next.js 15, TypeScript, Tailwind CSS application foundation scaffolded and verified)
 
@@ -159,9 +160,9 @@ Official BuildSprint Rules & Constraints:
 - **Installed Skill:** `api-documentation` (slug: `api-documentation`)
   - **Location:** `.latentcode/skills/api-documentation/SKILL.md`
   - **Purpose:** Generates comprehensive, structured API documentation (Markdown, OpenAPI 3.0 YAML, Postman JSON, HTML) from route/controller source code, specs, or endpoint definitions.
-  - **Workflow Role:** Intended to own Stage 4 (Update Generation) and support Stage 2 (Change Analysis) in the API-Sync AI pipeline by formatting code/API changes into standard documentation formats.
+  - **Workflow Role:** Owns Stage 4 (Update Generation) in the API-Sync AI pipeline by formatting code/API changes into standard documentation formats.
   - **What It Does NOT Do:** It does not perform Git repository monitoring, code diffing, drift detection, application UI rendering, database persistence, or GitHub PR management.
-  - **Integration Status:** Installed and verified in project repository; not yet invoked in product code (application implementation pending).
+  - **Integration Status:** Installed and actively invoked at runtime (`src/lib/doc-generator/`) via server-side loader `loadApiDocumentationSkill()`.
 - The skill will be declared in the final submission to count for the SkillPatch category according to the rulebook.
 
 ---
@@ -207,7 +208,7 @@ Initial Roadmap:
 - [x] Deterministic route/controller code diff parser — complete
 - [x] Documentation Context Collector — complete
 - [x] Gemini semantic drift engine (`gemini-2.0-flash`) — complete
-- [ ] SkillPatch doc generator engine — pending
+- [x] SkillPatch doc generator engine (`src/lib/doc-generator/`) — complete
 - [ ] Review Studio UI — pending
 - [ ] Review experience — pending
 - [ ] Testing and reliability — pending
@@ -261,7 +262,12 @@ Initial Roadmap:
   - Returns strongly-typed `DriftAnalysisResult` (`CONFIRMED_DRIFT`, `NO_DRIFT`, `UNCERTAIN`) with severity, summary, explanation, missing/outdated info, and evidence
   - Enforces server-side secret management (`GEMINI_API_KEY` from environment variables)
   - Added 10 unit tests with mock Gemini clients covering drift detection, JSON validation, and error handling
-  - SkillPatch documentation generator and Review Studio UI remain pending
+- **SkillPatch Documentation Generator Engine:**
+  - Implemented server-side loader `loadApiDocumentationSkill()` in `src/lib/doc-generator/` to dynamically consume installed `.latentcode/skills/api-documentation/SKILL.md` instructions
+  - Integrates Gemini runtime provider to generate structured Markdown documentation updates resolving detected drift
+  - Returns strongly-typed `DocumentationGenerationResult` with target file, formatted Markdown snippet, summary, and confidence levels
+  - Added 7 unit tests verifying SkillPatch instruction inclusion, early exit on `NO_DRIFT`, JSON parsing, and mock generation
+  - Review Studio UI and GitHub PR commit sync remain pending
 
 *(Future entries will be added as real milestones are completed.)*
 

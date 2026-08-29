@@ -65,7 +65,7 @@ Official Competition Rules & Constraints:
   - **Verification:** Security score `94/100`, verified `true`, security passed `true`.
   - **What It Does NOT Do:** It does NOT monitor Git repositories, compute code diffs, detect drift, run a web UI, integrate with GitHub PRs, or store database records.
   - **Role:** It acts as a specialized documentation-generation engine *within* our system, while API-Sync AI owns change detection, drift analysis, UI, and review workflows.
-  - **Integration Status:** Installed and verified in repo; application invocation code pending.
+  - **Integration Status:** Installed and actively invoked at runtime (`src/lib/doc-generator/`) via server-side loader `loadApiDocumentationSkill()`.
 
 ---
 
@@ -92,14 +92,14 @@ Official Competition Rules & Constraints:
 12. [x] Deterministic API Change Parser implemented (`src/lib/api-parser/`) with 12 unit tests and 0 AI dependencies.
 13. [x] Documentation Context Collector implemented (`src/lib/doc-collector/`) with 8 unit tests for Markdown section extraction.
 14. [x] Gemini Semantic Drift Engine implemented (`src/lib/drift-engine/`) using `gemini-2.0-flash` with 10 unit tests.
+15. [x] SkillPatch Documentation Generator Engine implemented (`src/lib/doc-generator/`) consuming `.latentcode/skills/api-documentation/SKILL.md` with 7 unit tests.
 
 ### Pending Milestones
-1. [ ] Integrate SkillPatch `api-documentation` prompt engine for doc generation.
-2. [ ] Implement interactive Review Studio UI with side-by-side diffs.
-3. [ ] Implement GitHub sync commit action.
-4. [ ] End-to-end testing and validation.
-5. [ ] Demo video & Build in Public preparation.
-6. [ ] Final submission preparation (transcripts, Drive folder, submission form).
+1. [ ] Implement interactive Review Studio UI with side-by-side diffs.
+2. [ ] Implement GitHub sync commit action.
+3. [ ] End-to-end testing and validation.
+4. [ ] Demo video & Build in Public preparation.
+5. [ ] Final submission preparation (transcripts, Drive folder, submission form).
 
 ---
 
@@ -164,7 +164,7 @@ Official Competition Rules & Constraints:
 ---
 
 ## Current State
-Gemini Semantic Drift Engine implemented (`src/lib/drift-engine/`) using `@google/genai` and `gemini-2.0-flash`. Evaluates code changes against documentation context to return structured `DriftAnalysisResult` (`CONFIRMED_DRIFT`, `NO_DRIFT`, `UNCERTAIN`) with zero-hallucination evidence enforcement. Passes 10 unit tests via Vitest (38 total unit tests in project).
+SkillPatch Documentation Generator Engine implemented (`src/lib/doc-generator/`) consuming `.latentcode/skills/api-documentation/SKILL.md` via server-side loader `loadApiDocumentationSkill()`. Generates structured Markdown documentation updates for detected drift. Passes 7 unit tests via Vitest (45 total unit tests in project).
 
 ## Next Step
-Integrate the SkillPatch `api-documentation` prompt engine (`src/lib/skillpatch/`) to generate structured, formatted documentation updates for detected drift.
+Implement the interactive Side-by-Side Review Studio UI (`src/app/`) to display PR diffs, detected drift explanations, and proposed documentation updates with approval controls.
