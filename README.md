@@ -1,8 +1,8 @@
-# SyncGuard
+# API-Sync AI
 
 > API documentation that stays in sync with your code.
 
-SyncGuard analyzes GitHub pull requests for API changes, identifies documentation drift, generates targeted documentation fixes using Gemini and SkillPatch, and lets developers review and commit updates directly back to their PR branch.
+API-Sync AI analyzes GitHub pull requests for API changes, identifies documentation drift, generates targeted documentation fixes using Gemini and SkillPatch, and lets developers review and commit updates directly back to their PR branch.
 
 ---
 
@@ -16,10 +16,10 @@ Over time, this creates **documentation drift** — where the repository's READM
 
 ## How It Works
 
-SyncGuard operates as a progressive 3-stage review pipeline:
+API-Sync AI operates as a progressive 3-stage review pipeline:
 
-1. **Analyze:** Input a GitHub Pull Request URL. SyncGuard deterministically parses modified route code, collects matching documentation sections, and prompts Gemini to perform semantic drift detection.
-2. **Generate:** When drift is confirmed, SyncGuard uses the installed SkillPatch `api-documentation` skill to format a precise Markdown documentation update.
+1. **Analyze:** Input a GitHub Pull Request URL. API-Sync AI deterministically parses modified route code, collects matching documentation sections, and prompts Gemini to perform semantic drift detection.
+2. **Generate:** When drift is confirmed, API-Sync AI uses the installed SkillPatch `api-documentation` skill to format a precise Markdown documentation update.
 3. **Sync:** Review the side-by-side proposal in the Review Studio and click **Approve & Sync** to commit the documentation update directly to the PR branch.
 
 ---
@@ -28,7 +28,7 @@ SyncGuard operates as a progressive 3-stage review pipeline:
 
 ```mermaid
 flowchart LR
-    U[Developer] --> UI[SyncGuard Review Studio]
+    U[Developer] --> UI[API-Sync Review Studio]
 
     UI --> A["/api/analyze"]
     A --> GH[GitHub Service]
@@ -133,12 +133,12 @@ See [.env.example](.env.example) for template configuration.
 
 ## Example Workflow
 
-1. Paste a GitHub PR URL (e.g. `https://github.com/owner/repo/pull/12`) into SyncGuard.
-2. Click **Analyze Drift**. SyncGuard extracts route changes, matches docs, and diagnoses drift in ~2 seconds.
+1. Paste a GitHub PR URL (e.g. `https://github.com/owner/repo/pull/12`) into API-Sync AI.
+2. Click **Analyze Drift**. API-Sync AI extracts route changes, matches docs, and diagnoses drift in ~2 seconds.
 3. Review the flagged route modifications and Gemini's evidence-based explanation.
 4. Click **Generate Documentation Update** to trigger SkillPatch structured doc generation.
 5. Inspect the current documentation snippet vs proposed Markdown update side-by-side.
-6. Click **Approve & Sync to GitHub**. SyncGuard commits the approved fix directly to the PR branch.
+6. Click **Approve & Sync to GitHub**. API-Sync AI commits the approved fix directly to the PR branch.
 
 ---
 

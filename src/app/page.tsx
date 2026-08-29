@@ -85,7 +85,7 @@ interface AuthState {
   authMethod?: string;
 }
 
-export default function SyncGuardPage() {
+export default function ApiSyncPage() {
   const studioRef = useRef<HTMLDivElement>(null);
   
   const [repoInput, setRepoInput] = useState("");
@@ -249,7 +249,7 @@ export default function SyncGuardPage() {
             <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
               🛡️
             </div>
-            <span className="text-xl font-extrabold tracking-tight text-white">SyncGuard</span>
+            <span className="text-xl font-extrabold tracking-tight text-white">API-Sync AI</span>
             <span className="hidden sm:inline-block text-2xs font-semibold px-2 py-0.5 rounded-md bg-slate-800 text-slate-400 border border-slate-700">
               API-Sync AI
             </span>
@@ -308,7 +308,7 @@ export default function SyncGuardPage() {
         </h1>
 
         <p className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
-          SyncGuard detects API documentation drift in GitHub pull requests, explains what became stale, and generates a reviewable fix before your team ships it.
+          API-Sync AI detects API documentation drift in GitHub pull requests, explains what became stale, and generates a reviewable fix before your team ships it.
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
@@ -369,7 +369,7 @@ export default function SyncGuardPage() {
       {/* How It Works Section */}
       <section id="how-it-works" className="py-16 px-6 max-w-7xl mx-auto w-full border-t border-slate-800/80 space-y-12">
         <div className="text-center space-y-3">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">How SyncGuard Works</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">How API-Sync AI Works</h2>
           <p className="text-sm text-slate-400 max-w-xl mx-auto">
             A 4-step progressive workflow combining deterministic parsing with evidence-grounded AI.
           </p>
@@ -419,7 +419,7 @@ export default function SyncGuardPage() {
               Deterministic Extraction + Gemini Reasoning + SkillPatch + Human Approval
             </h2>
             <p className="text-sm text-slate-400 leading-relaxed">
-              SyncGuard avoids raw AI hallucination by isolating code parsing, using evidence-grounded LLM drift detection, and requiring explicit developer approval before any repository commits occur.
+              API-Sync AI avoids raw AI hallucination by isolating code parsing, using evidence-grounded LLM drift detection, and requiring explicit developer approval before any repository commits occur.
             </p>
           </div>
 
@@ -774,7 +774,7 @@ export default function SyncGuardPage() {
       <footer className="border-t border-slate-800/80 bg-slate-950 py-8 px-6 text-center text-xs text-slate-500">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
-            SyncGuard by team <span className="text-slate-300 font-medium">LatentForce.ai</span> for BuildSprint 2026.
+            API-Sync AI by team <span className="text-slate-300 font-medium">LatentForce.ai</span> for BuildSprint 2026.
           </div>
           <div className="flex items-center space-x-4">
             <span>LatentCode</span>

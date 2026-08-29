@@ -2,7 +2,7 @@ import crypto from "crypto";
 import { Octokit } from "@octokit/rest";
 import { AuthError, GitHubUserProfile, SafeUserSessionResponse, UserSessionData } from "./types";
 
-export const SESSION_COOKIE_NAME = "syncguard_session";
+export const SESSION_COOKIE_NAME = "apisync_session";
 export const STATE_COOKIE_NAME = "github_oauth_state";
 
 export function generateOAuthState(): string {
