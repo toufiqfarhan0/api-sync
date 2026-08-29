@@ -4,9 +4,11 @@ import {
   FetchPullRequestInput,
   GitHubServiceError,
   NormalizedPullRequestData,
+  OpenPRSummary,
   PRFileChange,
   PRMetadata,
   SyncDocumentationInput,
+  UserRepoSummary,
 } from "./types";
 
 /**
@@ -311,5 +313,86 @@ export async function commitDocumentationFile(
       status: "FAILED",
       message: errObj.message || "Failed to commit documentation update to GitHub.",
     };
+  }
+}
+
+export async function listUserRepositories(token?: string, customOctokit?: Octokit): Promise<UserRepoSummary[]> {
+  const client = customOctokit || createOctokitClient(token);
+
+  try {
+    const res = await client.rest.repos.listForAuthenticatedUser({
+      sort: "updated",
+      per_page: 50,
+      type: "all",
+    });
+
+    return res.data.map((repo) => ({
+      id: repo.id,
+      name: repo.name,
+      fullName: repo.full_name,
+      owner: repo.owner?.login || "unknown",
+      defaultBranch: repo.default_branch || "main",
+      isPrivate: repo.private || false,
+      description: repo.description || null,
+      htmlUrl: repo.html_url,
+    }));
+  } catch {
+    // If listing authenticated repos fails (e.g. scope limit), fallback to public repos
+    try {
+      const publicRes = await client.rest.repos.listPublic({ per_page: 20 });
+      return publicRes.data.map((repo) => ({
+        id: repo.id,
+        name: repo.name,
+        fullName: repo.full_name,
+        owner: repo.owner?.login || "unknown",
+        defaultBranch: repo.default_branch || "main",
+        isPrivate: repo.private || false,
+        description: repo.description || null,
+        htmlUrl: repo.html_url,
+      }));
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      throw new GitHubServiceError(`Failed to fetch repositories: ${error.message || "Unknown error"}`, "API_ERROR");
+    }
+  }
+}
+
+export async function listOpenPullRequests(
+  owner: string,
+  repo: string,
+  token?: string,
+  customOctokit?: Octokit
+): Promise<OpenPRSummary[]> {
+  if (!owner || !repo) {
+    throw new GitHubServiceError("Owner and repository name are required.", "INVALID_INPUT");
+  }
+
+  const client = customOctokit || createOctokitClient(token);
+
+  try {
+    const res = await client.rest.pulls.list({
+      owner: owner.trim(),
+      repo: repo.trim(),
+      state: "open",
+      per_page: 30,
+    });
+
+    return res.data.map((pr) => ({
+      number: pr.number,
+      title: pr.title || "",
+      author: pr.user?.login || "unknown",
+      headRef: pr.head?.ref || "",
+      baseRef: pr.base?.ref || "",
+      createdAt: pr.created_at,
+      updatedAt: pr.updated_at,
+      isDraft: pr.draft || false,
+      htmlUrl: pr.html_url,
+    }));
+  } catch (err: unknown) {
+    const error = err as { message?: string };
+    throw new GitHubServiceError(
+      `Failed to fetch open pull requests for ${owner}/${repo}: ${error.message || "Unknown error"}`,
+      "API_ERROR"
+    );
   }
 }

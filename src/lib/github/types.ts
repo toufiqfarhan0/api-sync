@@ -79,6 +79,29 @@ export interface DocumentationSyncResult {
   message: string;
 }
 
+export interface UserRepoSummary {
+  id: number;
+  name: string;
+  fullName: string;
+  owner: string;
+  defaultBranch: string;
+  isPrivate: boolean;
+  description: string | null;
+  htmlUrl: string;
+}
+
+export interface OpenPRSummary {
+  number: number;
+  title: string;
+  author: string;
+  headRef: string;
+  baseRef: string;
+  createdAt: string;
+  updatedAt: string;
+  isDraft: boolean;
+  htmlUrl: string;
+}
+
 export class GitHubServiceError extends Error {
   public readonly statusCode?: number;
   public readonly code: "INVALID_INPUT" | "NOT_FOUND" | "UNAUTHORIZED" | "RATE_LIMITED" | "API_ERROR";
