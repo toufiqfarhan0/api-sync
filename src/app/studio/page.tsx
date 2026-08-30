@@ -244,6 +244,25 @@ export default function StudioPage() {
     window.location.href = "/api/auth/github";
   };
 
+  const handleResetWorkbench = () => {
+    setRepoInput("");
+    setPullNumberInput("");
+    setSelectedRepo("");
+    setSelectedPRNumber("");
+    setPullRequests([]);
+    setData(null);
+    setGenerationData(null);
+    setSyncResult(null);
+    setReviewState("IDLE");
+    setError(null);
+    setGenerationError(null);
+    try {
+      localStorage.removeItem("apisync_studio_cache");
+    } catch (e) {
+      console.error("Failed to clear studio cache:", e);
+    }
+  };
+
   const handleLogout = async () => {
     setIsDisconnecting(true);
     try {
@@ -589,12 +608,24 @@ export default function StudioPage() {
                repos.length > 0 && !manualInputMode ? `Loaded ${repos.length} repository options` :
                "Direct PR URL mode"}
             </span>
-            <button
-              onClick={() => setManualInputMode(!manualInputMode)}
-              className="text-[#ea580c] hover:underline font-mono font-semibold"
-            >
-              {manualInputMode ? "Switch to Repository Selector" : "Switch to Direct URL Input"}
-            </button>
+            <div className="flex items-center space-x-4">
+              {(data || repoInput || selectedRepo) && (
+                <button
+                  type="button"
+                  onClick={handleResetWorkbench}
+                  className="text-[#66645e] hover:text-[#141413] transition-colors font-mono"
+                >
+                  Reset Workbench
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setManualInputMode(!manualInputMode)}
+                className="text-[#ea580c] hover:underline font-mono font-semibold"
+              >
+                {manualInputMode ? "Switch to Repository Selector" : "Switch to Direct URL Input"}
+              </button>
+            </div>
           </div>
 
           {error && (
