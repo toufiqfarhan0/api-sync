@@ -292,6 +292,12 @@ export default function StudioPage() {
       return;
     }
 
+    const isDemoPlayground = repoInput.toLowerCase().includes("test-apy-sync") || repoInput.toLowerCase().includes("api-sync");
+    if (!auth.authenticated && !isDemoPlayground) {
+      setError("To analyze Pull Requests from personal or external repositories, please click 'Connect GitHub' in the header to authorize repository access.");
+      return;
+    }
+
     setLoadingAnalysis(true);
     setError(null);
     setGenerationError(null);
