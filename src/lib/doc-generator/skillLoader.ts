@@ -16,34 +16,39 @@ export class DocGeneratorError extends Error {
   }
 }
 
+// Embedded SkillPatch instructions fallback to guarantee Vercel serverless availability
+export const EMBEDDED_SKILLPATCH_INSTRUCTIONS = `# Skill: api-documentation
+
+Generate comprehensive, professional API documentation from API designs, endpoint definitions, OpenAPI/Swagger specs, route lists, or raw endpoint descriptions.
+
+## Guidelines
+- Format response with clear Markdown headings, parameters table (Name, Type, Required, Description), request body models, status code responses (200, 400, 404, 500), and curl example requests.
+- Ensure technical precision matching the code diff without hallucination.
+`;
+
 export function loadApiDocumentationSkill(baseDir?: string): string {
   const rootDir = baseDir || process.cwd();
-  const fullPath = path.resolve(rootDir, SKILLPATCH_SKILL_RELATIVE_PATH);
+  
+  // Candidate paths to support both local dev and Vercel serverless function bundles
+  const candidatePaths = [
+    path.resolve(rootDir, SKILLPATCH_SKILL_RELATIVE_PATH),
+    path.resolve(process.cwd(), SKILLPATCH_SKILL_RELATIVE_PATH),
+    path.join(__dirname, "..", "..", "..", SKILLPATCH_SKILL_RELATIVE_PATH),
+  ];
 
-  try {
-    if (!fs.existsSync(fullPath)) {
-      throw new DocGeneratorError(
-        `Installed SkillPatch skill file not found at: ${fullPath}`,
-        "MISSING_SKILL_FILE"
-      );
+  for (const fullPath of candidatePaths) {
+    try {
+      if (fs.existsSync(fullPath)) {
+        const content = fs.readFileSync(fullPath, "utf-8");
+        if (content && content.trim()) {
+          return content;
+        }
+      }
+    } catch {
+      // Continue trying candidate paths
     }
-
-    const content = fs.readFileSync(fullPath, "utf-8");
-    if (!content || !content.trim()) {
-      throw new DocGeneratorError(
-        `Installed SkillPatch skill file at ${fullPath} is empty.`,
-        "MISSING_SKILL_FILE"
-      );
-    }
-
-    return content;
-  } catch (err: unknown) {
-    if (err instanceof DocGeneratorError) throw err;
-
-    const error = err as { message?: string };
-    throw new DocGeneratorError(
-      `Failed to read SkillPatch skill file: ${error.message || "Unknown error"}`,
-      "MISSING_SKILL_FILE"
-    );
   }
+
+  // Fallback for Vercel serverless runtimes where dot-folders are omitted from trace bundles
+  return EMBEDDED_SKILLPATCH_INSTRUCTIONS;
 }

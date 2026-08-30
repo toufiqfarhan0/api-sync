@@ -51,14 +51,10 @@ describe("SkillPatch Documentation Generator Engine", () => {
       expect(skillContent).toContain("api-documentation");
     });
 
-    it("throws MISSING_SKILL_FILE error if skill file does not exist in directory", () => {
-      expect(() => loadApiDocumentationSkill("/invalid/path")).toThrowError(DocGeneratorError);
-      try {
-        loadApiDocumentationSkill("/invalid/path");
-      } catch (err: unknown) {
-        const error = err as DocGeneratorError;
-        expect(error.code).toBe("MISSING_SKILL_FILE");
-      }
+    it("returns embedded fallback content if custom directory does not contain skill file", () => {
+      const skillContent = loadApiDocumentationSkill("/invalid/path");
+      expect(skillContent).toBeDefined();
+      expect(skillContent).toContain("api-documentation");
     });
 
     it("verifies prompt includes exact loaded SkillPatch instructions and target file", () => {

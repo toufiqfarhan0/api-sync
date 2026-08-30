@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  outputFileTracingIncludes: {
+    "/api/generate": ["./.latentcode/skills/api-documentation/SKILL.md"],
+  },
 };
 
 export default nextConfig;
