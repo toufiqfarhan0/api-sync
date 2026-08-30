@@ -143,7 +143,48 @@ export default function StudioPage() {
         }
       })
       .catch(() => setAuth({ authenticated: false }));
+
+    // Restore cached Studio state on component mount
+    try {
+      const cached = localStorage.getItem("apisync_studio_cache");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed.data) setData(parsed.data);
+        if (parsed.generationData) setGenerationData(parsed.generationData);
+        if (parsed.syncResult) setSyncResult(parsed.syncResult);
+        if (parsed.reviewState) setReviewState(parsed.reviewState);
+        if (parsed.repoInput) setRepoInput(parsed.repoInput);
+        if (parsed.pullNumberInput) setPullNumberInput(parsed.pullNumberInput);
+        if (parsed.selectedRepo) setSelectedRepo(parsed.selectedRepo);
+        if (parsed.selectedPRNumber) setSelectedPRNumber(parsed.selectedPRNumber);
+        if (parsed.manualInputMode !== undefined) setManualInputMode(parsed.manualInputMode);
+      }
+    } catch (e) {
+      console.error("Failed to restore studio cache:", e);
+    }
   }, []);
+
+  // Save current Studio state to localStorage whenever key state changes
+  useEffect(() => {
+    try {
+      if (data || repoInput || selectedRepo) {
+        const cachePayload = {
+          data,
+          generationData,
+          syncResult,
+          reviewState,
+          repoInput,
+          pullNumberInput,
+          selectedRepo,
+          selectedPRNumber,
+          manualInputMode,
+        };
+        localStorage.setItem("apisync_studio_cache", JSON.stringify(cachePayload));
+      }
+    } catch (e) {
+      console.error("Failed to save studio cache:", e);
+    }
+  }, [data, generationData, syncResult, reviewState, repoInput, pullNumberInput, selectedRepo, selectedPRNumber, manualInputMode]);
 
   const fetchUserRepos = async () => {
     setLoadingRepos(true);
@@ -212,6 +253,11 @@ export default function StudioPage() {
       setPullRequests([]);
       setSelectedRepo("");
       setSelectedPRNumber("");
+      setData(null);
+      setGenerationData(null);
+      setSyncResult(null);
+      setReviewState("IDLE");
+      localStorage.removeItem("apisync_studio_cache");
     } catch {
       // Ignore
     } finally {
