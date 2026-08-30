@@ -828,12 +828,12 @@ export default function StudioPage() {
       <footer className="border-t border-[#e6e4df] bg-white py-8 px-6 text-center text-xs text-[#66645e]">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
-            <span className="font-mono font-bold text-[#141413]">api-sync</span> by team <span className="text-[#141413] font-semibold">LatentForce.ai</span> for BuildSprint 2026.
+            <span className="font-mono font-bold text-[#141413]">api-sync</span> for BuildSprint 2026.
           </div>
           <div className="flex items-center space-x-4 text-2xs font-mono text-[#66645e]">
             <span>LatentCode</span>
             <span>•</span>
-            <span>Gemini 3.7 Flash</span>
+            <span>Gemini</span>
             <span>•</span>
             <span>SkillPatch api-documentation</span>
           </div>
