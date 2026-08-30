@@ -145,6 +145,26 @@ See [.env.example](.env.example) for template configuration.
 
 ---
 
+## Live Testing Playground & Sample PRs
+
+To make evaluation and verification straightforward, we built a dedicated companion testbed repository containing 15 open Pull Requests covering diverse API drift and documentation scenarios:
+
+- **Testbed Repository:** https://github.com/toufiqfarhan0/test-apy-sync
+- **All Open Pull Requests:** https://github.com/toufiqfarhan0/test-apy-sync/pulls
+
+### Evaluator Quick-Test Workflow (Under 30 Seconds)
+
+1. Navigate to the Review Studio: https://api-sync-theta.vercel.app/studio
+2. Paste any sample PR URL from the testbed into the input field:
+   - **Critical Request Body Drift:** https://github.com/toufiqfarhan0/test-apy-sync/pull/3
+   - **Query Parameter Drift:** https://github.com/toufiqfarhan0/test-apy-sync/pull/2
+   - **Undocumented 404 Status Code:** https://github.com/toufiqfarhan0/test-apy-sync/pull/4
+   - **New Route Addition (`DELETE /api/users/:id`):** https://github.com/toufiqfarhan0/test-apy-sync/pull/5
+   - **Synchronized Documentation (Zero Drift):** https://github.com/toufiqfarhan0/test-apy-sync/pull/10
+3. Click **Analyze PR Drift** to inspect deterministic route extraction, Gemini drift reasoning, and the SkillPatch documentation fix.
+
+---
+
 ## Safety & Reliability
 
 - **No Unsolicited Writes:** GitHub commits occur ONLY after explicit developer approval.
