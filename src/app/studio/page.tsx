@@ -569,7 +569,7 @@ export default function StudioPage() {
                 <button
                   onClick={handleAnalyze}
                   disabled={!repoInput || loadingAnalysis || loadingGeneration || syncing}
-                  className="w-full bg-[#0f0f0e] hover:bg-[#262624] disabled:bg-neutral-300 text-white font-semibold py-2.5 px-4 rounded-xl transition text-xs flex items-center justify-center space-x-2 shadow-sm font-mono"
+                  className="w-full bg-[#0f0f0e] hover:bg-[#262624] disabled:bg-neutral-300 text-white font-semibold py-2.5 px-4 rounded-xl transition text-xs flex items-center justify-center space-x-2 shadow-sm font-mono whitespace-nowrap"
                 >
                   {loadingAnalysis ? (
                     <>
@@ -627,7 +627,7 @@ export default function StudioPage() {
                 <button
                   type="submit"
                   disabled={loadingAnalysis || loadingGeneration || syncing}
-                  className="w-full bg-[#0f0f0e] hover:bg-[#262624] disabled:bg-neutral-300 text-white font-semibold py-2.5 px-4 rounded-xl transition text-xs flex items-center justify-center space-x-2 shadow-sm font-mono"
+                  className="w-full bg-[#0f0f0e] hover:bg-[#262624] disabled:bg-neutral-300 text-white font-semibold py-2.5 px-4 rounded-xl transition text-xs flex items-center justify-center space-x-2 shadow-sm font-mono whitespace-nowrap"
                 >
                   {loadingAnalysis ? (
                     <>
@@ -641,6 +641,20 @@ export default function StudioPage() {
               </div>
             </form>
           )}
+
+          {/* Testbed PRs Helper Hint */}
+          <div className="p-3 rounded-xl bg-[#faf9f6] border border-[#e5e3dc] text-2xs text-[#66645e] leading-relaxed">
+            Don&apos;t have a PR to test? Try one of the 25 real-world test PRs from our demo playground:{" "}
+            <a
+              href="https://github.com/toufiqfarhan0/test-apy-sync"
+              target="_blank"
+              rel="noreferrer"
+              className="text-[#ea580c] font-semibold underline hover:text-[#c2410c]"
+            >
+              https://github.com/toufiqfarhan0/test-apy-sync
+            </a>{" "}
+            — PRs #2 through #28 are ready to analyze. If a PR shows no drift, try a different one from the list.
+          </div>
 
           {/* Selector / Manual Mode Toggle */}
           <div className="flex items-center justify-between text-2xs text-[#66645e] pt-2 border-t border-[#f1efea]">
@@ -1003,8 +1017,20 @@ export default function StudioPage() {
       {/* Footer */}
       <footer className="border-t border-[#e6e4df] bg-white py-8 px-6 text-center text-xs text-[#66645e]">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>
+          <div className="flex items-center space-x-3">
             <span className="font-mono font-bold text-[#141413]">api-sync</span> for BuildSprint 2026.
+            <span>•</span>
+            <a
+              href="https://github.com/toufiqfarhan0/api-sync"
+              target="_blank"
+              rel="noreferrer"
+              className="text-[#141413] hover:text-[#ea580c] transition-colors font-medium underline flex items-center space-x-1"
+            >
+              <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.33-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.595-5.475 5.895.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+              </svg>
+              <span>View on GitHub</span>
+            </a>
           </div>
           <div className="flex items-center space-x-4 text-2xs font-mono text-[#66645e]">
             <span>LatentCode</span>

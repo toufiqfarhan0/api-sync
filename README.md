@@ -5,6 +5,12 @@
 - **Live Application:** https://api-sync-theta.vercel.app/
 - **Live Review Studio:** https://api-sync-theta.vercel.app/studio
 
+### Demo Resources
+- **Live Application:** https://api-sync-theta.vercel.app
+- **Studio Workbench:** https://api-sync-theta.vercel.app/studio
+- **Demo Video & LatentCode Session Transcript Folder:** https://drive.google.com/drive/u/0/folders/1EkG8j8yc2wIrbyckb0Ks4EqZlbpctq1J
+- **GitHub Repository:** https://github.com/toufiqfarhan0/api-sync
+
 API-Sync AI analyzes GitHub pull requests for API changes, identifies documentation drift, generates targeted documentation fixes using Gemini and SkillPatch, and lets developers review and commit updates directly back to their PR branch.
 
 ---
@@ -154,6 +160,8 @@ To make evaluation and verification straightforward, we built a dedicated compan
 
 - **Testbed Repository:** https://github.com/toufiqfarhan0/test-apy-sync
 - **All Open Pull Requests:** https://github.com/toufiqfarhan0/test-apy-sync/pulls
+
+> **Note for Evaluators:** Judges and evaluators can paste any PR URL from this repo directly into the Studio Workbench to test live drift analysis and one-click documentation sync without needing to connect a GitHub account.
 
 ### Evaluator Quick-Test Workflow (Under 30 Seconds)
 
