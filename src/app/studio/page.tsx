@@ -292,9 +292,10 @@ export default function StudioPage() {
       return;
     }
 
-    const isDemoPlayground = repoInput.toLowerCase().includes("test-apy-sync") || repoInput.toLowerCase().includes("api-sync");
-    if (!auth.authenticated && !isDemoPlayground) {
-      setError("To analyze Pull Requests from personal or external repositories, please click 'Connect GitHub' in the header to authorize repository access.");
+    const isDemoRepo = repoInput.toLowerCase().includes("toufiqfarhan0/test-apy-sync");
+    if (!auth.authenticated && !isDemoRepo) {
+      setError("Please connect your GitHub account to analyze pull requests from external repositories. Click 'Connect GitHub' in the header to continue, or test with our demo playground: toufiqfarhan0/test-apy-sync.");
+      setLoadingAnalysis(false);
       return;
     }
 
