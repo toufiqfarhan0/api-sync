@@ -2,6 +2,9 @@
 
 > API documentation that stays in sync with your code.
 
+- **Live Application:** https://api-sync-theta.vercel.app/
+- **Live Review Studio:** https://api-sync-theta.vercel.app/studio
+
 API-Sync AI analyzes GitHub pull requests for API changes, identifies documentation drift, generates targeted documentation fixes using Gemini and SkillPatch, and lets developers review and commit updates directly back to their PR branch.
 
 ---
@@ -147,7 +150,7 @@ See [.env.example](.env.example) for template configuration.
 
 ## Live Testing Playground & Sample PRs
 
-To make evaluation and verification straightforward, we built a dedicated companion testbed repository containing 15 open Pull Requests covering diverse API drift and documentation scenarios:
+To make evaluation and verification straightforward, we built a dedicated companion testbed repository containing 25 open Pull Requests covering diverse API drift and documentation scenarios:
 
 - **Testbed Repository:** https://github.com/toufiqfarhan0/test-apy-sync
 - **All Open Pull Requests:** https://github.com/toufiqfarhan0/test-apy-sync/pulls
@@ -196,8 +199,7 @@ api-sync/
 │       ├── gemini/                        # Shared Gemini Model Router & Fallback
 │       └── github/                        # Octokit PR retrieval & commit service
 ├── .env.example
-├── README.md
-└── context.md
+└── README.md
 ```
 
 ---
@@ -214,4 +216,3 @@ Built for **BuildSprint 2026** by team **LatentForce.ai** using **LatentCode** a
 - **Installed SkillPatch Skill:** [.latentcode/skills/api-documentation/SKILL.md](.latentcode/skills/api-documentation/SKILL.md)
 - **Environment Template:** [.env.example](.env.example)
 - **Source Code:** [src/](src/)
-- **Internal Context:** [context.md](context.md)
