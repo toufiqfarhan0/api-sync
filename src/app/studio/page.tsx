@@ -935,7 +935,7 @@ export default function StudioPage() {
                         {auth.authenticated && auth.user ? (
                           <>
                             <div>
-                              You are authenticated as <span className="font-mono text-[#141413]">@{auth.user.login}</span>, but you do not have write access to <span className="font-mono text-[#141413]">{data?.prMetadata?.owner || "owner"}/{data?.prMetadata?.repo || "repo"}</span>. GitHub prevents pushing commits to repositories you do not own or collaborate on.
+                              You are authenticated as <span className="font-mono text-[#141413]">@{auth.user.login}</span>, but you do not have write access to <span className="font-mono text-[#141413]">{data?.prMetadata?.owner || repoInput.replace(/https?:\/\/github\.com\//i, "").split("/")[0] || "repository"}/{data?.prMetadata?.repo || repoInput.replace(/https?:\/\/github\.com\//i, "").split("/")[1] || "repository"}</span>. GitHub prevents pushing commits to repositories you do not own or collaborate on.
                             </div>
                             <div className="text-2xs text-slate-600 font-normal">
                               To test 1-click synchronization, choose one of your own repositories from the selector dropdown, or test with our demo playground: <code className="font-mono text-[#ea580c]">toufiqfarhan0/test-apy-sync</code>.

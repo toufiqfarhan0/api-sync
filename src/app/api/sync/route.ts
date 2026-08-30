@@ -1,9 +1,9 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-
-export const dynamic = "force-dynamic";
 import { parseSession, SESSION_COOKIE_NAME } from "../../../lib/auth";
 import { commitDocumentationFile } from "../../../lib/github";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
@@ -30,6 +30,16 @@ export async function POST(req: Request) {
     const session = parseSession(sessionCookie);
     const userToken = session?.accessToken;
 
+    const normalizedOwner = String(owner).trim().toLowerCase();
+    const normalizedRepo = String(repo).trim().toLowerCase();
+    const isDemoRepo = normalizedOwner === "toufiqfarhan0" && normalizedRepo === "test-apy-sync";
+
+    // Demo testbed repository always uses server process.env.GITHUB_TOKEN to guarantee write access for all users;
+    // external repositories use the user's OAuth session token (falling back to server token)
+    const effectiveToken = isDemoRepo
+      ? process.env.GITHUB_TOKEN
+      : userToken || process.env.GITHUB_TOKEN;
+
     const result = await commitDocumentationFile({
       owner: String(owner).trim(),
       repo: String(repo).trim(),
@@ -37,7 +47,7 @@ export async function POST(req: Request) {
       filePath: String(filePath).trim(),
       content: String(content),
       expectedSha: expectedSha ? String(expectedSha) : undefined,
-      token: userToken,
+      token: effectiveToken,
     });
 
     const httpStatus =
