@@ -1,3 +1,29 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #f6f5f2;
+    color: #141413;
+  }
+}
+
+/* Custom scrollbar styling for high-end code & diff review */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1efea;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d6d3cc;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #b5b1a8;
+}

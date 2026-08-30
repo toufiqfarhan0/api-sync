@@ -326,30 +326,30 @@ export default function StudioPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans antialiased selection:bg-indigo-500/20 selection:text-indigo-900">
-      {/* Light Mode Header */}
-      <header className="border-b border-slate-200 bg-white/90 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <div className="min-h-screen bg-[#f6f5f2] text-[#141413] flex flex-col font-sans antialiased selection:bg-[#ff6b00]/15 selection:text-[#ea580c]">
+      {/* Light Mode Studio Header */}
+      <header className="border-b border-[#e6e4df] bg-white/90 backdrop-blur-md sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <Link href="/" className="flex items-center space-x-3 group">
-              <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white shadow-md shadow-indigo-600/20">
-                ⚡
+            <Link href="/" className="flex items-center space-x-2.5 group">
+              <div className="h-7 w-7 rounded-lg bg-[#0f0f0e] text-white flex items-center justify-center font-mono font-bold text-xs shadow-sm">
+                a/s
               </div>
-              <span className="text-xl font-bold tracking-tight text-slate-900 group-hover:text-indigo-600 transition">API-Sync AI</span>
+              <span className="text-lg font-bold tracking-tight text-[#141413] font-mono group-hover:text-[#ea580c] transition-colors">api-sync</span>
             </Link>
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
-              Review Studio
+            <span className="text-2xs font-mono font-bold px-2 py-0.5 rounded bg-[#f1efea] text-[#66645e] border border-[#e5e3dc]">
+              Review Workbench
             </span>
           </div>
 
           <div className="flex items-center space-x-4">
             {auth.authenticated && auth.user ? (
-              <div className="flex items-center space-x-3 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl">
-                <span className="text-xs text-slate-700 font-medium">@{auth.user.login}</span>
-                <span className="text-2xs text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded font-mono font-semibold">Connected</span>
+              <div className="flex items-center space-x-3 bg-[#f1efea] border border-[#e5e3dc] px-3 py-1 rounded-xl">
+                <span className="text-xs text-[#141413] font-mono font-medium">@{auth.user.login}</span>
+                <span className="text-2xs text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded font-mono font-bold">Authorized</span>
                 <button
                   onClick={handleLogout}
-                  className="text-xs text-slate-500 hover:text-slate-800 transition"
+                  className="text-xs text-[#66645e] hover:text-[#141413] transition"
                 >
                   Disconnect
                 </button>
@@ -357,7 +357,7 @@ export default function StudioPage() {
             ) : (
               <a
                 href="/api/auth/github"
-                className="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 font-medium px-3.5 py-1.5 rounded-lg text-xs transition flex items-center space-x-2"
+                className="bg-[#f1efea] hover:bg-[#e8e5de] text-[#141413] border border-[#e5e3dc] font-semibold px-3 py-1.5 rounded-xl text-xs transition flex items-center space-x-1.5"
               >
                 <span>Connect GitHub</span>
               </a>
@@ -365,9 +365,9 @@ export default function StudioPage() {
 
             <Link
               href="/"
-              className="text-xs text-slate-600 hover:text-slate-900 font-medium transition"
+              className="text-xs text-[#66645e] hover:text-[#141413] font-medium transition"
             >
-              ← Back to Overview
+              ← Overview
             </Link>
           </div>
         </div>
@@ -376,28 +376,31 @@ export default function StudioPage() {
       {/* Main Review Studio Workspace */}
       <main className="max-w-7xl mx-auto px-6 py-8 flex-1 w-full space-y-8">
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">API Documentation Drift Studio</h1>
-          <p className="text-sm text-slate-500">
-            Select an authorized GitHub repository and open pull request to inspect detected API changes and generated documentation fixes.
+          <div className="inline-flex items-center space-x-2 text-2xs font-mono font-bold text-[#ea580c] uppercase tracking-wider bg-[#fff7ed] px-2.5 py-0.5 rounded border border-[#ffedd5]">
+            <span>Deterministic Review Studio</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#141413] tracking-tight">API Drift Workbench</h1>
+          <p className="text-xs sm:text-sm text-[#66645e]">
+            Select an authorized GitHub repository and open pull request to inspect detected route changes and generated SkillPatch fixes.
           </p>
         </div>
 
         {/* Input Form & Selection Card */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
+        <div className="bg-white border border-[#e6e4df] rounded-2xl p-6 shadow-[0_4px_16px_-4px_rgba(20,20,20,0.04)] space-y-6">
           {!manualInputMode && repos.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
               {/* Repo Dropdown */}
               <div className="md:col-span-5">
-                <label htmlFor="repoSelect" className="block text-xs font-semibold text-slate-600 mb-1">
-                  1. Select Authorized Repository
+                <label htmlFor="repoSelect" className="block text-xs font-bold font-mono text-[#66645e] mb-1.5 uppercase tracking-wider">
+                  1. Authorized Repository
                 </label>
                 <select
                   id="repoSelect"
                   value={selectedRepo}
                   onChange={(e) => handleSelectRepo(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                  className="w-full bg-[#faf9f6] border border-[#e5e3dc] rounded-xl px-4 py-2.5 text-xs text-[#141413] font-mono focus:outline-none focus:ring-2 focus:ring-[#0f0f0e]"
                 >
-                  <option value="">-- Choose Repository ({repos.length} available) --</option>
+                  <option value="">-- Select Repository ({repos.length} available) --</option>
                   {repos.map((r) => (
                     <option key={r.id} value={r.fullName}>
                       {r.fullName} {r.isPrivate ? "(Private)" : ""}
@@ -408,15 +411,15 @@ export default function StudioPage() {
 
               {/* PR Dropdown */}
               <div className="md:col-span-5">
-                <label htmlFor="prSelect" className="block text-xs font-semibold text-slate-600 mb-1">
-                  2. Select Open Pull Request {loadingPulls ? "(Loading...)" : ""}
+                <label htmlFor="prSelect" className="block text-xs font-bold font-mono text-[#66645e] mb-1.5 uppercase tracking-wider">
+                  2. Open Pull Request {loadingPulls ? "(Loading...)" : ""}
                 </label>
                 <select
                   id="prSelect"
                   disabled={!selectedRepo || loadingPulls}
                   value={selectedPRNumber}
                   onChange={(e) => handleSelectPR(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm text-slate-900 disabled:bg-slate-100 disabled:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                  className="w-full bg-[#faf9f6] border border-[#e5e3dc] rounded-xl px-4 py-2.5 text-xs text-[#141413] font-mono disabled:bg-[#f1efea] disabled:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-[#0f0f0e]"
                 >
                   <option value="">
                     {!selectedRepo ? "-- Select Repository First --" :
@@ -436,11 +439,11 @@ export default function StudioPage() {
                 <button
                   onClick={handleAnalyze}
                   disabled={!repoInput || loadingAnalysis || loadingGeneration || syncing}
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-semibold py-3 px-4 rounded-xl transition text-sm flex items-center justify-center space-x-2 shadow-md shadow-indigo-600/10"
+                  className="w-full bg-[#0f0f0e] hover:bg-[#262624] disabled:bg-neutral-300 text-white font-semibold py-2.5 px-4 rounded-xl transition text-xs flex items-center justify-center space-x-2 shadow-sm font-mono"
                 >
                   {loadingAnalysis ? (
                     <>
-                      <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                      <span className="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full" />
                       <span>Analyzing...</span>
                     </>
                   ) : (
@@ -453,7 +456,7 @@ export default function StudioPage() {
             /* Manual Input Mode Form */
             <form onSubmit={handleAnalyze} className="grid grid-cols-1 md:grid-cols-12 gap-4">
               <div className="md:col-span-8">
-                <label htmlFor="repoInput" className="block text-xs font-semibold text-slate-600 mb-1">
+                <label htmlFor="repoInput" className="block text-xs font-bold font-mono text-[#66645e] mb-1.5 uppercase tracking-wider">
                   GitHub Repository or PR URL
                 </label>
                 <input
@@ -462,12 +465,12 @@ export default function StudioPage() {
                   value={repoInput}
                   onChange={(e) => setRepoInput(e.target.value)}
                   placeholder="https://github.com/owner/repo/pull/1 or owner/repo"
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                  className="w-full bg-[#faf9f6] border border-[#e5e3dc] rounded-xl px-4 py-2.5 text-xs text-[#141413] font-mono placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-[#0f0f0e]"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label htmlFor="pullNumberInput" className="block text-xs font-semibold text-slate-600 mb-1">
+                <label htmlFor="pullNumberInput" className="block text-xs font-bold font-mono text-[#66645e] mb-1.5 uppercase tracking-wider">
                   PR # (Optional)
                 </label>
                 <input
@@ -476,7 +479,7 @@ export default function StudioPage() {
                   value={pullNumberInput}
                   onChange={(e) => setPullNumberInput(e.target.value)}
                   placeholder="1"
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                  className="w-full bg-[#faf9f6] border border-[#e5e3dc] rounded-xl px-4 py-2.5 text-xs text-[#141413] font-mono placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-[#0f0f0e]"
                 />
               </div>
 
@@ -484,11 +487,11 @@ export default function StudioPage() {
                 <button
                   type="submit"
                   disabled={loadingAnalysis || loadingGeneration || syncing}
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-semibold py-3 px-4 rounded-xl transition text-sm flex items-center justify-center space-x-2 shadow-md shadow-indigo-600/10"
+                  className="w-full bg-[#0f0f0e] hover:bg-[#262624] disabled:bg-neutral-300 text-white font-semibold py-2.5 px-4 rounded-xl transition text-xs flex items-center justify-center space-x-2 shadow-sm font-mono"
                 >
                   {loadingAnalysis ? (
                     <>
-                      <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                      <span className="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full" />
                       <span>Analyzing...</span>
                     </>
                   ) : (
@@ -500,7 +503,7 @@ export default function StudioPage() {
           )}
 
           {/* Selector / Manual Mode Toggle */}
-          <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100">
+          <div className="flex items-center justify-between text-2xs text-[#66645e] pt-2 border-t border-[#f1efea]">
             <span>
               {loadingRepos ? "Loading authorized repositories..." :
                repos.length > 0 && !manualInputMode ? `Loaded ${repos.length} repository options` :
@@ -508,14 +511,14 @@ export default function StudioPage() {
             </span>
             <button
               onClick={() => setManualInputMode(!manualInputMode)}
-              className="text-indigo-600 hover:text-indigo-800 font-medium font-mono text-xs"
+              className="text-[#ea580c] hover:underline font-mono font-semibold"
             >
               {manualInputMode ? "Switch to Repository Selector" : "Switch to Direct URL Input"}
             </button>
           </div>
 
           {error && (
-            <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm">
+            <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-mono">
               ⚠️ {error}
             </div>
           )}
@@ -526,24 +529,24 @@ export default function StudioPage() {
           <div className="space-y-8 animate-fadeIn">
             {/* PR Summary Bar */}
             {data.prMetadata && (
-              <div className="bg-white border border-slate-200 rounded-xl p-6 flex flex-wrap items-center justify-between gap-4 shadow-sm">
+              <div className="bg-white border border-[#e6e4df] rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4 shadow-2xs">
                 <div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xs font-bold px-2.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
+                  <div className="flex items-center space-x-2.5">
+                    <span className="text-2xs font-mono font-bold px-2 py-0.5 rounded bg-[#f1efea] text-[#141413] border border-[#e5e3dc]">
                       PR #{data.prMetadata.number}
                     </span>
-                    <h3 className="text-lg font-bold text-slate-900">{data.prMetadata.title}</h3>
+                    <h3 className="text-base font-bold text-[#141413]">{data.prMetadata.title}</h3>
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Author: <span className="text-slate-800 font-medium">@{data.prMetadata.author.login}</span> • Branch: <span className="font-mono text-slate-800">{data.prMetadata.head.ref}</span> → <span className="font-mono text-slate-800">{data.prMetadata.base.ref}</span>
+                  <p className="text-xs text-[#66645e] mt-1 font-mono">
+                    Author: <span className="text-[#141413] font-bold">@{data.prMetadata.author.login}</span> • Branch: <span className="text-[#141413]">{data.prMetadata.head.ref}</span> → <span className="text-[#141413]">{data.prMetadata.base.ref}</span>
                   </p>
                 </div>
 
                 {data.summary && (
                   <div className="flex items-center space-x-4 text-xs font-mono font-semibold">
-                    <span className="text-emerald-600">+{data.summary.additions}</span>
-                    <span className="text-rose-600">-{data.summary.deletions}</span>
-                    <span className="text-slate-500">{data.summary.changedFilesCount} files changed</span>
+                    <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">+{data.summary.additions}</span>
+                    <span className="text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">-{data.summary.deletions}</span>
+                    <span className="text-[#66645e]">{data.summary.changedFilesCount} files changed</span>
                   </div>
                 )}
               </div>
@@ -551,25 +554,25 @@ export default function StudioPage() {
 
             {/* Detected API Changes Panel */}
             {data.apiChanges && data.apiChanges.length > 0 && (
-              <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4">
+              <div className="bg-white border border-[#e6e4df] rounded-2xl p-6 shadow-2xs">
+                <h3 className="text-xs font-bold font-mono text-[#66645e] uppercase tracking-wider mb-4">
                   Detected API Code Changes ({data.apiChanges.length})
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {data.apiChanges.map((change, idx) => (
-                    <div key={idx} className="bg-slate-50 border border-slate-200 rounded-lg p-3 flex items-center justify-between">
+                    <div key={idx} className="bg-[#faf9f6] border border-[#e5e3dc] rounded-xl p-3 flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <span className={`text-xs font-bold px-2 py-1 rounded font-mono ${
-                          change.method === "GET" ? "bg-emerald-100 text-emerald-800 border border-emerald-200" :
-                          change.method === "POST" ? "bg-blue-100 text-blue-800 border border-blue-200" :
-                          change.method === "PUT" ? "bg-amber-100 text-amber-800 border border-amber-200" :
-                          "bg-rose-100 text-rose-800 border border-rose-200"
+                        <span className={`text-2xs font-bold px-2 py-0.5 rounded font-mono ${
+                          change.method === "GET" ? "bg-emerald-100 text-emerald-900 border border-emerald-200" :
+                          change.method === "POST" ? "bg-blue-100 text-blue-900 border border-blue-200" :
+                          change.method === "PUT" ? "bg-amber-100 text-amber-900 border border-amber-200" :
+                          "bg-rose-100 text-rose-900 border border-rose-200"
                         }`}>
                           {change.method}
                         </span>
-                        <span className="font-mono text-sm text-slate-800 font-medium">{change.path}</span>
+                        <span className="font-mono text-xs font-bold text-[#141413]">{change.path}</span>
                       </div>
-                      <span className="text-xs text-slate-500 font-mono">{change.changeType}</span>
+                      <span className="text-2xs text-[#66645e] font-mono">{change.changeType}</span>
                     </div>
                   ))}
                 </div>
@@ -578,44 +581,44 @@ export default function StudioPage() {
 
             {/* Drift Status Banner & Reasoning Card */}
             {data.driftAnalysis && (
-              <div className={`border rounded-xl p-6 shadow-sm ${
-                data.driftAnalysis.status === "CONFIRMED_DRIFT" ? "bg-rose-50/50 border-rose-200" :
-                data.driftAnalysis.status === "NO_DRIFT" ? "bg-emerald-50/50 border-emerald-200" :
-                "bg-amber-50/50 border-amber-200"
+              <div className={`border rounded-2xl p-6 shadow-2xs ${
+                data.driftAnalysis.status === "CONFIRMED_DRIFT" ? "bg-[#fef2f2] border-rose-200" :
+                data.driftAnalysis.status === "NO_DRIFT" ? "bg-[#f0fdf4] border-emerald-200" :
+                "bg-[#fff7ed] border-amber-200"
               }`}>
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <div className="flex items-center space-x-3">
-                    <span className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider ${
-                      data.driftAnalysis.status === "CONFIRMED_DRIFT" ? "bg-rose-100 text-rose-800 border border-rose-300" :
-                      data.driftAnalysis.status === "NO_DRIFT" ? "bg-emerald-100 text-emerald-800 border border-emerald-300" :
-                      "bg-amber-100 text-amber-800 border border-amber-300"
+                    <span className={`text-2xs font-bold px-3 py-1 rounded-full uppercase tracking-wider font-mono ${
+                      data.driftAnalysis.status === "CONFIRMED_DRIFT" ? "bg-rose-100 text-rose-900 border border-rose-300" :
+                      data.driftAnalysis.status === "NO_DRIFT" ? "bg-emerald-100 text-emerald-900 border border-emerald-300" :
+                      "bg-amber-100 text-amber-900 border border-amber-300"
                     }`}>
                       {data.driftAnalysis.status.replace("_", " ")}
                     </span>
-                    <span className="text-xs font-semibold text-slate-600">
-                      Severity: <span className="text-slate-900 font-bold">{data.driftAnalysis.severity}</span>
+                    <span className="text-xs font-semibold text-[#66645e]">
+                      Severity: <span className="text-[#141413] font-bold">{data.driftAnalysis.severity}</span>
                     </span>
                   </div>
 
-                  <div className="flex items-center space-x-3 text-xs font-mono text-slate-500">
+                  <div className="flex items-center space-x-3 text-xs font-mono text-[#66645e]">
                     {data.driftAnalysis.modelMetadata && (
                       <span>
-                        AI Model: <span className="text-indigo-700 font-semibold">{data.driftAnalysis.modelMetadata.modelUsed}</span>
+                        AI Model: <span className="text-[#141413] font-bold">{data.driftAnalysis.modelMetadata.modelUsed}</span>
                         {data.driftAnalysis.modelMetadata.fallbackUsed && (
-                          <span className="ml-1 text-amber-600 font-semibold">(Fallback)</span>
+                          <span className="ml-1 text-[#ea580c] font-bold">(Fallback)</span>
                         )}
                       </span>
                     )}
                   </div>
                 </div>
 
-                <h3 className="text-lg font-bold text-slate-900 mb-2">{data.driftAnalysis.summary}</h3>
-                <p className="text-sm text-slate-700 leading-relaxed mb-6">{data.driftAnalysis.explanation}</p>
+                <h3 className="text-base sm:text-lg font-bold text-[#141413] mb-2">{data.driftAnalysis.summary}</h3>
+                <p className="text-xs sm:text-sm text-[#141413] leading-relaxed mb-5">{data.driftAnalysis.explanation}</p>
 
                 {data.driftAnalysis.missingInformation.length > 0 && (
-                  <div className="mb-4">
-                    <h4 className="text-xs font-semibold text-rose-800 uppercase tracking-wider mb-2">Missing Information in Docs:</h4>
-                    <ul className="list-disc list-inside text-xs text-slate-700 space-y-1">
+                  <div className="mb-4 bg-white/60 p-3.5 rounded-xl border border-rose-200/80">
+                    <h4 className="text-2xs font-bold text-rose-800 uppercase tracking-wider mb-2 font-mono">Missing Information in Docs:</h4>
+                    <ul className="list-disc list-inside text-xs text-[#141413] space-y-1">
                       {data.driftAnalysis.missingInformation.map((item, i) => (
                         <li key={i}>{item}</li>
                       ))}
@@ -625,14 +628,14 @@ export default function StudioPage() {
 
                 {/* Stage 2 Action: Generate Documentation Update */}
                 {data.driftAnalysis.status === "CONFIRMED_DRIFT" && !generationData && (
-                  <div className="mt-6 pt-4 border-t border-slate-200 flex items-center justify-between flex-wrap gap-4">
-                    <div className="text-xs text-slate-700">
-                      Documentation drift is confirmed. Generate a formatted Markdown update using SkillPatch.
+                  <div className="mt-6 pt-4 border-t border-rose-200/60 flex items-center justify-between flex-wrap gap-4">
+                    <div className="text-xs text-[#141413]">
+                      Documentation drift confirmed. Click to generate a formatted Markdown update using SkillPatch.
                     </div>
                     <button
                       onClick={handleGenerate}
                       disabled={loadingGeneration}
-                      className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-medium py-2 px-5 rounded-lg text-xs transition flex items-center space-x-2 shadow-md shadow-indigo-600/10"
+                      className="bg-[#0f0f0e] hover:bg-[#262624] disabled:bg-neutral-300 text-white font-semibold py-2 px-5 rounded-xl text-xs transition flex items-center space-x-2 shadow-sm font-mono"
                     >
                       {loadingGeneration ? (
                         <>
@@ -640,14 +643,14 @@ export default function StudioPage() {
                           <span>Generating Update...</span>
                         </>
                       ) : (
-                        <span>Generate Documentation Update</span>
+                        <span>Generate Documentation Update →</span>
                       )}
                     </button>
                   </div>
                 )}
 
                 {data.driftAnalysis.status === "UNCERTAIN" && (
-                  <div className="mt-4 p-3 rounded bg-amber-100 border border-amber-200 text-amber-900 text-xs">
+                  <div className="mt-4 p-3 rounded-xl bg-amber-100/80 border border-amber-300 text-amber-900 text-xs">
                     ⚠️ Drift evidence is uncertain. Verify available source snippets before generating updates.
                   </div>
                 )}
@@ -655,25 +658,25 @@ export default function StudioPage() {
             )}
 
             {generationError && (
-              <div className="p-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-sm">
+              <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-mono">
                 ⚠️ Generation Error: {generationError}
               </div>
             )}
 
             {/* Stage 2 Result: Side-by-Side Documentation Studio */}
             {generationData && (
-              <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm animate-fadeIn">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <div className="bg-white border border-[#e6e4df] rounded-2xl p-6 shadow-2xs animate-fadeIn">
+                <div className="flex items-center justify-between mb-5 border-b border-[#f1efea] pb-3">
+                  <h3 className="text-xs font-bold font-mono text-[#66645e] uppercase tracking-wider">
                     Side-by-Side Documentation Studio
                   </h3>
-                  <div className="flex items-center space-x-3 text-xs font-mono">
+                  <div className="flex items-center space-x-3 text-2xs font-mono">
                     {generationData.modelMetadata && (
-                      <span className="text-slate-500">
-                        Model: <span className="text-indigo-700 font-semibold">{generationData.modelMetadata.modelUsed}</span>
+                      <span className="text-[#66645e]">
+                        Model: <span className="text-[#141413] font-bold">{generationData.modelMetadata.modelUsed}</span>
                       </span>
                     )}
-                    <span className="text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded border border-indigo-200 font-semibold">
+                    <span className="text-[#ea580c] bg-[#fff7ed] px-2 py-0.5 rounded border border-[#ffedd5] font-bold">
                       SkillPatch: api-documentation
                     </span>
                   </div>
@@ -681,47 +684,47 @@ export default function StudioPage() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Left: Existing Doc */}
-                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 flex flex-col h-96">
-                    <div className="text-xs font-bold text-slate-600 border-b border-slate-200 pb-2 mb-3 flex items-center justify-between">
-                      <span>Current Repository Documentation Snippet</span>
-                      <span className="text-slate-500 font-mono">
+                  <div className="bg-[#faf9f6] border border-[#e5e3dc] rounded-xl p-4 flex flex-col h-96">
+                    <div className="text-xs font-bold text-[#66645e] border-b border-[#e5e3dc] pb-2 mb-3 flex items-center justify-between font-mono">
+                      <span>Current Documentation Snippet</span>
+                      <span className="text-[#141413]">
                         {data.docContexts?.[0]?.matchedFile || "README.md"}
                       </span>
                     </div>
-                    <pre className="text-xs text-slate-800 font-mono overflow-auto flex-1 p-3 bg-white border border-slate-200 rounded whitespace-pre-wrap leading-relaxed">
+                    <pre className="text-2xs text-[#141413] font-mono overflow-auto flex-1 p-3 bg-white border border-[#e5e3dc] rounded-lg whitespace-pre-wrap leading-relaxed">
                       {data.docContexts?.[0]?.matchedSections?.[0]?.contentSnippet || "No existing matching section found in repository."}
                     </pre>
                   </div>
 
                   {/* Right: SkillPatch Proposal */}
-                  <div className="bg-slate-50 border border-indigo-200 rounded-lg p-4 flex flex-col h-96">
-                    <div className="text-xs font-bold text-indigo-700 border-b border-slate-200 pb-2 mb-3 flex items-center justify-between">
-                      <span>Proposed Documentation Update (SkillPatch)</span>
-                      <span className="text-indigo-700 font-mono font-semibold">
+                  <div className="bg-[#f0fdf4] border border-[#bbf7d0] rounded-xl p-4 flex flex-col h-96">
+                    <div className="text-xs font-bold text-emerald-900 border-b border-[#bbf7d0] pb-2 mb-3 flex items-center justify-between font-mono">
+                      <span>Proposed SkillPatch Update</span>
+                      <span className="text-emerald-900 font-bold">
                         {generationData.targetFile}
                       </span>
                     </div>
-                    <pre className="text-xs text-slate-900 font-mono overflow-auto flex-1 p-3 bg-emerald-50/50 border border-emerald-200 rounded whitespace-pre-wrap leading-relaxed">
+                    <pre className="text-2xs text-emerald-950 font-mono overflow-auto flex-1 p-3 bg-white border border-[#bbf7d0] rounded-lg whitespace-pre-wrap leading-relaxed">
                       {generationData.generatedContent}
                     </pre>
                   </div>
                 </div>
 
                 {/* Stage 3 Action: Approve & Sync */}
-                <div className="mt-8 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="text-xs text-slate-600">
+                <div className="mt-8 pt-6 border-t border-[#f1efea] flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="text-xs text-[#66645e]">
                     {syncResult?.status === "SYNCED" && (
-                      <div className="text-emerald-700 font-semibold space-y-1">
+                      <div className="text-emerald-800 font-semibold space-y-1">
                         <div>✓ Successfully synchronized to branch <span className="font-mono">{syncResult.branch}</span>!</div>
                         {syncResult.commitSha && (
-                          <div className="text-xs text-slate-500 font-mono">
+                          <div className="text-2xs text-[#66645e] font-mono">
                             Commit:{" "}
                             {syncResult.commitUrl ? (
                               <a
                                 href={syncResult.commitUrl}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="underline text-indigo-600 hover:text-indigo-800 font-semibold"
+                                className="underline text-[#ea580c] font-bold"
                               >
                                 {syncResult.commitSha.substring(0, 7)}
                               </a>
@@ -751,14 +754,14 @@ export default function StudioPage() {
                     <button
                       onClick={() => setReviewState("REJECTED")}
                       disabled={syncing || reviewState === "REJECTED"}
-                      className="px-4 py-2 rounded-lg text-xs font-semibold bg-slate-200 hover:bg-slate-300 text-slate-700 transition"
+                      className="px-4 py-2 rounded-xl text-xs font-semibold bg-[#f1efea] hover:bg-[#e8e5de] text-[#141413] border border-[#e5e3dc] transition"
                     >
                       Reject
                     </button>
                     <button
                       onClick={handleSyncToGitHub}
                       disabled={syncing || syncResult?.status === "SYNCED"}
-                      className="px-5 py-2 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white transition flex items-center space-x-2 shadow-md shadow-emerald-600/10"
+                      className="px-5 py-2 rounded-xl text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 disabled:bg-neutral-300 text-white transition flex items-center space-x-2 shadow-sm font-mono"
                     >
                       {syncing ? (
                         <>
@@ -780,17 +783,17 @@ export default function StudioPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-8 px-6 text-center text-xs text-slate-500">
+      <footer className="border-t border-[#e6e4df] bg-white py-8 px-6 text-center text-xs text-[#66645e]">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
-            API-Sync AI by team <span className="text-slate-800 font-semibold">LatentForce.ai</span> for BuildSprint 2026.
+            <span className="font-mono font-bold text-[#141413]">api-sync</span> by team <span className="text-[#141413] font-semibold">LatentForce.ai</span> for BuildSprint 2026.
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 text-2xs font-mono text-[#66645e]">
             <span>LatentCode</span>
             <span>•</span>
-            <span>Gemini AI</span>
+            <span>Gemini 3.7 Flash</span>
             <span>•</span>
-            <span>SkillPatch</span>
+            <span>SkillPatch api-documentation</span>
           </div>
         </div>
       </footer>
