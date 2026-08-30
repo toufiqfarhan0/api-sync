@@ -748,25 +748,46 @@ export default function StudioPage() {
                 <div className="mt-8 pt-6 border-t border-[#f1efea] flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="text-xs text-[#66645e]">
                     {syncResult?.status === "SYNCED" && (
-                      <div className="text-emerald-800 font-semibold space-y-1">
-                        <div>✓ Successfully synchronized to branch <span className="font-mono">{syncResult.branch}</span>!</div>
-                        {syncResult.commitSha && (
-                          <div className="text-2xs text-[#66645e] font-mono">
-                            Commit:{" "}
-                            {syncResult.commitUrl ? (
+                      <div className="text-emerald-800 font-semibold space-y-1.5">
+                        <div className="flex items-center space-x-2">
+                          <span>✓ Successfully synchronized to branch</span>
+                          <span className="font-mono bg-emerald-100 text-emerald-900 px-1.5 py-0.5 rounded text-2xs">
+                            {syncResult.branch}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-3 text-2xs font-mono text-[#66645e]">
+                          {syncResult.commitSha && (
+                            <span>
+                              Commit:{" "}
+                              {syncResult.commitUrl ? (
+                                <a
+                                  href={syncResult.commitUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="underline text-[#ea580c] font-bold hover:text-[#c2410c]"
+                                >
+                                  {syncResult.commitSha.substring(0, 7)}
+                                </a>
+                              ) : (
+                                syncResult.commitSha.substring(0, 7)
+                              )}
+                            </span>
+                          )}
+                          {data?.prMetadata?.htmlUrl && (
+                            <>
+                              <span>•</span>
                               <a
-                                href={syncResult.commitUrl}
+                                href={data.prMetadata.htmlUrl}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="underline text-[#ea580c] font-bold"
+                                className="text-emerald-800 font-bold underline hover:text-emerald-950 inline-flex items-center gap-1"
                               >
-                                {syncResult.commitSha.substring(0, 7)}
+                                <span>View PR #{data.prMetadata.number} on GitHub</span>
+                                <span>↗</span>
                               </a>
-                            ) : (
-                              syncResult.commitSha.substring(0, 7)
-                            )}
-                          </div>
-                        )}
+                            </>
+                          )}
+                        </div>
                       </div>
                     )}
                     {syncResult?.status === "CONFLICT" && (
