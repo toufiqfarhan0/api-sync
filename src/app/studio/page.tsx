@@ -540,8 +540,18 @@ export default function StudioPage() {
                 </select>
               </div>
 
-              {/* Analyze Button */}
-              <div className="md:col-span-2 flex items-end">
+              {/* Analyze & Reset Buttons */}
+              <div className="md:col-span-2 flex items-end space-x-2">
+                {(data || repoInput || selectedRepo) && (
+                  <button
+                    type="button"
+                    onClick={handleResetWorkbench}
+                    className="bg-white hover:bg-[#f1efea] text-[#141413] border border-[#e5e3dc] font-semibold py-2.5 px-3 rounded-xl transition text-xs shadow-2xs font-mono shrink-0"
+                    title="Reset Workbench"
+                  >
+                    Reset
+                  </button>
+                )}
                 <button
                   onClick={handleAnalyze}
                   disabled={!repoInput || loadingAnalysis || loadingGeneration || syncing}
@@ -589,7 +599,17 @@ export default function StudioPage() {
                 />
               </div>
 
-              <div className="md:col-span-2 flex items-end">
+              <div className="md:col-span-2 flex items-end space-x-2">
+                {(data || repoInput || selectedRepo) && (
+                  <button
+                    type="button"
+                    onClick={handleResetWorkbench}
+                    className="bg-white hover:bg-[#f1efea] text-[#141413] border border-[#e5e3dc] font-semibold py-2.5 px-3 rounded-xl transition text-xs shadow-2xs font-mono shrink-0"
+                    title="Reset Workbench"
+                  >
+                    Reset
+                  </button>
+                )}
                 <button
                   type="submit"
                   disabled={loadingAnalysis || loadingGeneration || syncing}
@@ -746,24 +766,41 @@ export default function StudioPage() {
 
                 {/* Stage 2 Action: Generate Documentation Update */}
                 {data.driftAnalysis.status === "CONFIRMED_DRIFT" && !generationData && (
-                  <div className="mt-6 pt-4 border-t border-rose-200/60 flex items-center justify-between flex-wrap gap-4">
-                    <div className="text-xs text-[#141413]">
-                      Documentation drift confirmed. Click to generate a formatted Markdown update using SkillPatch.
+                  <div className="mt-6 pt-4 border-t border-rose-200/60 space-y-4">
+                    <div className="flex items-center justify-between flex-wrap gap-4">
+                      <div className="text-xs text-[#141413]">
+                        Documentation drift confirmed. Click to generate a formatted Markdown update using SkillPatch.
+                      </div>
+                      <button
+                        onClick={handleGenerate}
+                        disabled={loadingGeneration}
+                        className="bg-[#0f0f0e] hover:bg-[#262624] disabled:bg-neutral-300 text-white font-semibold py-2 px-5 rounded-xl text-xs transition flex items-center space-x-2 shadow-sm font-mono"
+                      >
+                        {loadingGeneration ? (
+                          <>
+                            <span className="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full" />
+                            <span>Synthesizing SkillPatch Fix...</span>
+                          </>
+                        ) : (
+                          <span>Generate Documentation Update →</span>
+                        )}
+                      </button>
                     </div>
-                    <button
-                      onClick={handleGenerate}
-                      disabled={loadingGeneration}
-                      className="bg-[#0f0f0e] hover:bg-[#262624] disabled:bg-neutral-300 text-white font-semibold py-2 px-5 rounded-xl text-xs transition flex items-center space-x-2 shadow-sm font-mono"
-                    >
-                      {loadingGeneration ? (
-                        <>
-                          <span className="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full" />
-                          <span>Generating Update...</span>
-                        </>
-                      ) : (
-                        <span>Generate Documentation Update →</span>
-                      )}
-                    </button>
+
+                    {loadingGeneration && (
+                      <div className="p-4 rounded-xl bg-indigo-50/80 border border-indigo-200 text-indigo-950 space-y-1.5 animate-fadeIn font-sans">
+                        <div className="flex items-center space-x-2 font-bold text-xs text-indigo-900">
+                          <svg className="animate-spin h-4 w-4 text-indigo-600 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
+                          <span>Consulting SkillPatch &amp; Synthesizing Documentation...</span>
+                        </div>
+                        <p className="text-2xs text-indigo-800/90 leading-relaxed font-sans">
+                          Gemini is cross-referencing route changes and constructing structured Markdown tables, parameter schemas, and response codes according to the SkillPatch rulebook. This process typically takes 5 to 8 seconds. Please hold on!
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
 
