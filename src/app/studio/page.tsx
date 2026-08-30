@@ -119,6 +119,7 @@ export default function StudioPage() {
   const [generationData, setGenerationData] = useState<GenerationData | null>(null);
   const [reviewState, setReviewState] = useState<"IDLE" | "APPROVED" | "REJECTED">("IDLE");
   const [syncResult, setSyncResult] = useState<SyncResponse | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const [auth, setAuth] = useState<AuthState>({ authenticated: false });
   const [isConnecting, setIsConnecting] = useState(false);
@@ -284,6 +285,13 @@ export default function StudioPage() {
     }
   };
 
+  const handleCopyMarkdown = () => {
+    if (!generationData?.generatedContent) return;
+    navigator.clipboard.writeText(generationData.generatedContent);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
+
   // Stage 1: Analyze PR & Detect Drift
   const handleAnalyze = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -395,6 +403,12 @@ export default function StudioPage() {
       } else {
         if (json.status === "CONFLICT") {
           setError("Documentation file has been modified on GitHub. Please re-analyze before syncing.");
+        } else if (json.status === "UNAUTHORIZED") {
+          if (auth.authenticated && auth.user) {
+            setError(`You are authenticated as @${auth.user.login}, but you do not have write access to ${owner}/${repo}. GitHub prevents pushing commits to repositories you do not own or collaborate on. To test 1-click synchronization, choose one of your own repositories from the selector dropdown, or test with our demo playground: toufiqfarhan0/test-apy-sync.`);
+          } else {
+            setError("Write access required to commit to this repository. Click 'Connect GitHub' in the header to authorize your account, or test live synchronization with our demo playground: toufiqfarhan0/test-apy-sync.");
+          }
         } else {
           setError(json.message || "Failed to synchronize documentation to GitHub.");
         }
@@ -918,10 +932,23 @@ export default function StudioPage() {
                     )}
                     {syncResult?.status === "UNAUTHORIZED" && (
                       <div className="text-rose-800 font-semibold space-y-1">
-                        <div>{syncResult.message}</div>
-                        <div className="text-2xs text-slate-600 font-normal">
-                          Click <a href="/api/auth/github" className="text-indigo-600 underline font-semibold">Connect GitHub</a> in the header to authorize repository write access.
-                        </div>
+                        {auth.authenticated && auth.user ? (
+                          <>
+                            <div>
+                              You are authenticated as <span className="font-mono text-[#141413]">@{auth.user.login}</span>, but you do not have write access to <span className="font-mono text-[#141413]">{data?.prMetadata?.owner || "owner"}/{data?.prMetadata?.repo || "repo"}</span>. GitHub prevents pushing commits to repositories you do not own or collaborate on.
+                            </div>
+                            <div className="text-2xs text-slate-600 font-normal">
+                              To test 1-click synchronization, choose one of your own repositories from the selector dropdown, or test with our demo playground: <code className="font-mono text-[#ea580c]">toufiqfarhan0/test-apy-sync</code>.
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div>Write access required to commit to this repository.</div>
+                            <div className="text-2xs text-slate-600 font-normal">
+                              Click <a href="/api/auth/github" className="text-indigo-600 underline font-semibold">Connect GitHub</a> in the header to authorize your account, or test live synchronization with our demo playground: <code className="font-mono text-[#ea580c]">toufiqfarhan0/test-apy-sync</code>.
+                            </div>
+                          </>
+                        )}
                       </div>
                     )}
                     {reviewState === "REJECTED" && (
@@ -935,6 +962,13 @@ export default function StudioPage() {
                   </div>
 
                   <div className="flex items-center space-x-3">
+                    <button
+                      type="button"
+                      onClick={handleCopyMarkdown}
+                      className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-[#f1efea] text-[#141413] border border-[#e5e3dc] transition shadow-2xs flex items-center space-x-1 font-mono"
+                    >
+                      <span>{copied ? "Copied to Clipboard ✓" : "Copy Generated Markdown"}</span>
+                    </button>
                     <button
                       onClick={() => setReviewState("REJECTED")}
                       disabled={syncing || reviewState === "REJECTED"}
