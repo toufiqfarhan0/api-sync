@@ -140,6 +140,7 @@ describe("GitHub Documentation Synchronization Service", () => {
 
       expect(result.success).toBe(false);
       expect(result.status).toBe("UNAUTHORIZED");
+      expect(result.message).toContain("GitHub authorization failed: Write permissions required");
     });
   });
 });

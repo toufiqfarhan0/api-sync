@@ -774,6 +774,14 @@ export default function StudioPage() {
                         ⚠️ Documentation changed on GitHub. Please re-analyze before syncing.
                       </span>
                     )}
+                    {syncResult?.status === "UNAUTHORIZED" && (
+                      <div className="text-rose-800 font-semibold space-y-1">
+                        <div>{syncResult.message}</div>
+                        <div className="text-2xs text-slate-600 font-normal">
+                          Click <a href="/api/auth/github" className="text-indigo-600 underline font-semibold">Connect GitHub</a> in the header to authorize repository write access.
+                        </div>
+                      </div>
+                    )}
                     {reviewState === "REJECTED" && (
                       <span className="text-rose-700 font-semibold">
                         ✕ Proposal Rejected by Developer.

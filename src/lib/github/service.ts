@@ -290,7 +290,7 @@ export async function commitDocumentationFile(
         branch: "unknown",
         filePath: normalizedPath,
         status: "UNAUTHORIZED",
-        message: "Unauthorized to write to GitHub repository. Check GITHUB_TOKEN write permissions.",
+        message: "GitHub authorization failed: Write permissions required to commit to this repository. Please connect your GitHub account with write access or verify repository permissions.",
       };
     }
 
